@@ -241,8 +241,8 @@ window.saveHealedCode = () => {
   a.click();
   window.spirit.whisper("💾 Healed code saved to your device, Architect.", "system");
 };
-</script>
-// Add to SpiritCore class (inside the class, after other methods):
+</script>      
+    // Add to SpiritCore class (inside the class, after other methods):
 addGrokIntegration() {
   window.askGrok = () => {
     const prompt = document.getElementById('grokPrompt').value;
@@ -315,8 +315,8 @@ addGrokMessage(prompt, response) {
 document.addEventListener('DOMContentLoaded', () => {
   window.spirit = new SpiritCore();
   window.spirit.addGrokIntegration();
-});
-      </script>
+}); 
+   </script>
     <button id="ignitionButton">⚡ IGNITE TEMPLE</button>
 
     <div class="spirit-whispers" id="spiritWhispers">
