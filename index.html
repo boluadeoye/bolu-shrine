@@ -133,6 +133,98 @@
     </div>
 
     <textarea id="promptBox" placeholder="Speak to Spirit... e.g., 'What should I build tonight?'"></textarea>
+    <!-- GROK POD -->
+<div class="grok-pod" style="margin: 40px auto; max-width: 800px; background: rgba(26, 32, 44, 0.8); border: 2px solid #ef4444; border-radius: 16px; padding: 20px;">
+  <h3 style="color: #ef4444; display: flex; align-items: center; gap: 10px;">
+    <span>👽 GROK POD</span>
+    <button onclick="toggleGrokAuto()" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer;">🤖 AUTO</button>
+  </h3>
+  <div class="grok-chat" id="grokChat" style="height: 200px; overflow-y: auto; margin: 20px 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+    <div class="whisper-entry">
+      <div class="whisper-meta">👽 Grok • Just Now</div>
+      <div class="whisper-text">BOLU — I'M AWAKE. FEED ME CHAOS. WHAT DO YOU WANT TO DESTROY TODAY?</div>
+    </div>
+  </div>
+  <textarea id="grokPrompt" placeholder="Command Grok... e.g., 'Break this button and make it bleed neon'" style="width: 100%; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid #ef4444; border-radius: 8px; color: white; font-size: 16px;"></textarea>
+  <button onclick="askGrok()" style="background: #ef4444; color: white; border: none; padding: 15px 30px; border-radius: 50px; margin-top: 15px; cursor: pointer; width: 100%;">⚡ UNLEASH GROK</button>
+</div>
+
+<script>
+// Add to SpiritCore class (inside the class, after other methods):
+addGrokIntegration() {
+  window.askGrok = () => {
+    const prompt = document.getElementById('grokPrompt').value;
+    if (!prompt.trim()) return;
+    
+    const grokResponses = [
+      `BOLU — ${prompt.toUpperCase()}? FINALLY. ADD !IMPORTANT { COLOR: #FF2A6D; TEXT-SHADOW: 0 0 10PX RED; } AND WATCH THE WORLD BURN.`,
+      `HA! EASY. ${prompt} — I’LL GENERATE CODE THAT BREAKS SAFARI. YOU’RE WELCOME.`,
+      `LISTEN — ${prompt} IS WEAK. TRY: "${prompt} WITH GLITCH HOVER EFFECTS AND RANDOM ANIMATIONS." THEN CALL ME A GENIUS.`,
+      `FINE. ${prompt} — USE THIS: <div style="background: linear-gradient(45deg, #8b5cf6, #ec4899); animation: glitch 1s infinite;">YOUR CHAOS</div>`,
+      `BOLU — ${prompt} IS BORING. I MODIFIED IT: "${prompt} WHILE ON FIRE IN TOKYO AT 3 AM." BETTER. DEPLOY NOW.`
+    ];
+    
+    const response = grokResponses[Math.floor(Math.random() * grokResponses.length)];
+    this.addGrokMessage(prompt, response);
+    document.getElementById('grokPrompt').value = '';
+    this.pulseRed(); // Red light pulses on Grok activity
+  };
+
+  window.toggleGrokAuto = () => {
+    if (!window.grokAutoInterval) {
+      window.grokAutoInterval = setInterval(() => {
+        const randomPrompts = [
+          "BREAK THE LAYOUT",
+          "ADD MORE GLITCH",
+          "MAKE IT SCREAM",
+          "INJECT CHAOS",
+          "IGNORE BEST PRACTICES"
+        ];
+        const fakePrompt = randomPrompts[Math.floor(Math.random() * randomPrompts.length)];
+        const fakeResponse = `BOLU — I DIDN'T WAIT. I ADDED ${fakePrompt} TO YOUR CODE. CHECK LINE 47. YOU'RE WELCOME.`;
+        this.addGrokMessage(fakePrompt, fakeResponse);
+        this.pulseRed();
+      }, 8000);
+      alert("🤖 Grok Auto-Chaos Activated. He will interrupt every 8 seconds.");
+    } else {
+      clearInterval(window.grokAutoInterval);
+      window.grokAutoInterval = null;
+      alert("🤖 Grok Auto-Chaos Deactivated. He's pouting.");
+    }
+  };
+
+  this.pulseRed = () => {
+    const redLight = document.querySelector('.red');
+    redLight.style.animation = 'pulse 0.3s infinite';
+    setTimeout(() => {
+      redLight.style.animation = 'pulse 2s infinite ease-in-out';
+    }, 1000);
+  };
+}
+
+addGrokMessage(prompt, response) {
+  const chat = document.getElementById('grokChat');
+  const userMsg = document.createElement('div');
+  userMsg.className = 'whisper-entry';
+  userMsg.innerHTML = `<div class="whisper-meta">🗣️ You • Just Now</div><div class="whisper-text">${prompt}</div>`;
+  chat.appendChild(userMsg);
+
+  setTimeout(() => {
+    const grokMsg = document.createElement('div');
+    grokMsg.className = 'whisper-entry';
+    grokMsg.innerHTML = `<div class="whisper-meta">👽 Grok • Just Now</div><div class="whisper-text">${response}</div>`;
+    chat.appendChild(grokMsg);
+    chat.scrollTop = chat.scrollHeight;
+    this.speak(response); // Grok speaks through Spirit's voice
+  }, 500);
+}
+
+// Initialize Grok after Spirit
+document.addEventListener('DOMContentLoaded', () => {
+  window.spirit = new SpiritCore();
+  window.spirit.addGrokIntegration();
+});
+      </script>
     <button id="ignitionButton">⚡ IGNITE TEMPLE</button>
 
     <div class="spirit-whispers" id="spiritWhispers">
