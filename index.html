@@ -225,6 +225,98 @@ document.addEventListener('DOMContentLoaded', () => {
   window.spirit.addGrokIntegration();
 });
       </script>
+    <!-- HEALING ENGINE -->
+<div class="healing-engine" style="margin: 40px auto; max-width: 800px; background: rgba(26, 32, 44, 0.8); border: 2px solid #10b981; border-radius: 16px; padding: 20px;">
+  <h3 style="color: #10b981; display: flex; align-items: center; gap: 10px;">
+    <span>🩹 HEALING ENGINE</span>
+  </h3>
+  <p style="text-align: center;">Paste broken HTML/CSS/JSON → I'll autopsy + fix it.</p>
+  <textarea id="brokenCode" placeholder="Paste broken code here..." style="width: 100%; height: 150px; padding: 15px; background: rgba(0,0,0,0.5); border: 1px solid #10b981; border-radius: 8px; color: white; font-family: monospace; font-size: 14px;"></textarea>
+  <button onclick="healCode()" style="background: #10b981; color: white; border: none; padding: 15px 30px; border-radius: 50px; margin: 15px 0; cursor: pointer; width: 100%;">🩹 HEAL THIS CODE</button>
+  <div id="healingReport" style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 15px; min-height: 100px; margin-top: 20px; display: none;"></div>
+</div>
+
+<script>
+// Add to SpiritCore class:
+healCode(code) {
+  if (!code.trim()) return;
+
+  const report = {
+    errors: [],
+    fixes: [],
+    healedCode: code
+  };
+
+  // Simulate healing
+  if (!code.includes('<!DOCTYPE html>')) {
+    report.errors.push("Missing <!DOCTYPE html>");
+    report.fixes.push("Added <!DOCTYPE html>");
+    report.healedCode = '<!DOCTYPE html>\n' + report.healedCode;
+  }
+
+  if (!code.includes('viewport')) {
+    report.errors.push("No mobile viewport");
+    report.fixes.push("Added viewport meta tag");
+    report.healedCode = report.healedCode.replace(
+      '</head>',
+      '<meta name="viewport" content="width=device-width, initial-scale=1">\n</head>'
+    );
+  }
+
+  if (code.includes('!important')) {
+    report.errors.push("Found !important — consider alternatives");
+    report.fixes.push("Commented out !important as warning");
+    report.healedCode = report.healedCode.replace(/!important/g, '/* !important */');
+  }
+
+  if (code.match(/<img[^>]*>/g) && !code.includes('alt=')) {
+    report.errors.push("Images missing alt text");
+    report.fixes.push("Added alt='mystic-sigil' to images");
+    report.healedCode = report.healedCode.replace(/<img([^>]*)>/g, '<img$1 alt="mystic-sigil">');
+  }
+
+  return report;
+}
+
+// Global function
+window.healCode = () => {
+  const code = document.getElementById('brokenCode').value;
+  if (!code.trim()) {
+    alert("Paste some broken code first!");
+    return;
+  }
+
+  const report = window.spirit.healCode(code);
+  const reportDiv = document.getElementById('healingReport');
+  
+  let html = `<h4>🩹 AUTOPSY REPORT</h4>`;
+  html += `<p><strong>Errors Found:</strong> ${report.errors.length}</p>`;
+  html += `<ul>${report.errors.map(e => `<li>🔴 ${e}</li>`).join('')}</ul>`;
+  html += `<p><strong>Fixes Applied:</strong> ${report.fixes.length}</p>`;
+  html += `<ul>${report.fixes.map(f => `<li>🟢 ${f}</li>`).join('')}</ul>`;
+  html += `<p><strong>Healed Code:</strong></p>`;
+  html += `<textarea style="width: 100%; height: 200px; background: black; color: lime; font-family: monospace; padding: 10px; border-radius: 8px;">${report.healedCode}</textarea>`;
+  html += `<button onclick="saveHealedCode()" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 15px; cursor: pointer;">💾 SAVE HEALED CODE</button>`;
+
+  reportDiv.innerHTML = html;
+  reportDiv.style.display = 'block';
+  reportDiv.scrollIntoView({ behavior: 'smooth' });
+
+  window.spirit.whisper("🩹 Healing complete, Bolu. Sins forgiven. Code resurrected.", "system");
+  window.spirit.pulseGreen();
+};
+
+window.saveHealedCode = () => {
+  const healedCode = document.querySelector('#healingReport textarea').value;
+  const blob = new Blob([healedCode], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'healed-reality.html';
+  a.click();
+  window.spirit.whisper("💾 Healed code saved to your device, Architect.", "system");
+};
+</script>
     <button id="ignitionButton">⚡ IGNITE TEMPLE</button>
 
     <div class="spirit-whispers" id="spiritWhispers">
