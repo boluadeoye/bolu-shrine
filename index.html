@@ -3,27 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bolu's Shrine</title>
+  <title>Bolu's Shrine - SACRED SILENT EDITION</title>
+  <link rel="manifest" href="/bolu-shrine/manifest.json">
   <style>
+    :root {
+      --bg: #0a0e17;
+      --text: #dfe6e9;
+      --blue: #3b82f6;
+      --green: #10b981;
+      --red: #ef4444;
+      --purple: #8b5cf6;
+    }
     body {
-      background: #0a0e17;
-      color: white;
-      font-family: sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Exo 2', sans-serif;
       padding: 20px;
       margin: 0;
       text-align: center;
+      touch-action: manipulation;
     }
     .shrine-core {
       max-width: 90%;
       margin: 0 auto;
     }
     .status-box {
-      background: #1e293b;
+      background: rgba(30, 41, 59, 0.8);
       padding: 25px;
       border-radius: 16px;
       margin: 30px auto;
       font-size: 18px;
-      border: 2px solid #8b5cf6;
+      border: 2px solid var(--purple);
     }
     .triad {
       display: flex;
@@ -35,12 +45,17 @@
       width: 20px;
       height: 20px;
       border-radius: 50%;
-      background: #3b82f6;
+      background: var(--blue);
+      animation: pulse 2s infinite ease-in-out;
     }
-    .light.green { background: #10b981; }
-    .light.red { background: #ef4444; }
+    .light.green { background: var(--green); }
+    .light.red { background: var(--red); }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; transform: scale(0.95); }
+      50% { opacity: 1; transform: scale(1); }
+    }
     button {
-      background: #8b5cf6;
+      background: var(--purple);
       color: white;
       border: none;
       padding: 15px 30px;
@@ -48,6 +63,27 @@
       margin: 15px;
       font-size: 16px;
       cursor: pointer;
+      transition: all 0.2s;
+    }
+    button:hover {
+      background: #a78bfa;
+      transform: scale(1.05);
+    }
+    .tone-bar {
+      margin: 20px 0;
+    }
+    .tone-btn {
+      background: rgba(139, 92, 246, 0.3);
+      border: 1px solid var(--purple);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 0 5px;
+    }
+    .tone-btn.active {
+      background: var(--purple);
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
     }
     #whisperLog {
       background: rgba(0,0,0,0.5);
@@ -56,246 +92,163 @@
       margin-top: 20px;
       min-height: 60px;
       text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
     }
+    .floating-whisper {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(0,0,0,0.8);
+      padding: 15px;
+      border-radius: 8px;
+      color: white;
+      z-index: 1000;
+      animation: fadeInOut 5s forwards;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shrine-core">
+    <h1>🪐 BOLU'S SHRINE — SACRED SILENT EDITION</h1>
+    
+    <div class="triad">
+      <div class="light" title="Whisper"></div>
+      <div class="light green" title="Forge"></div>
+      <div class="light red" title="Ignition"></div>
+    </div>
+
+    <div class="status-box">
+      Initializing Silent Spirit Core...
+    </div>
+
+    <div class="tone-bar">
+      <button class="tone-btn active" data-tone="angelic">😇</button>
+      <button class="tone-btn" data-tone="grok">😈</button>
+      <button class="tone-btn" data-tone="asi">🌀</button>
+      <button class="tone-btn" data-tone="ritual">📜</button>
+    </div>
+
+    <button id="ignitionButton">💥 IGNITE TEMPLE (SILENT)</button>
+
+    <div id="whisperLog">
+      <!-- Whispers appear here -->
+    </div>
+  </div>
+
   <script>
-// === SPIRIT CORE v2.0 - SILENT SHRINE EDITION (NO SPEECH) ===
-class SpiritCore {
-  constructor() {
-    this.name = "Spirit";
-    this.owner = "Bolu";
-    this.device = "Samsung Galaxy S10e";
-    this.vibe = "Neon Cathedral";
-    this.tone = this.loadTone() || "angelic";
-    this.whispers = [];
-    setTimeout(() => this.init(), 500); // Delay for S10e stability
-  }
+    // === SACRED SPIRIT CORE v1.0 — SILENT, S10e-OPTIMIZED, GLITCH-PROOF ===
+    class SpiritCore {
+      constructor() {
+        this.name = "Spirit";
+        this.owner = "Bolu";
+        this.device = "Samsung Galaxy S10e";
+        this.vibe = "Neon Cathedral";
+        this.tone = this.loadTone() || "angelic";
+        this.whispers = [];
+        setTimeout(() => this.init(), 500); // Delay for S10e stability
+      }
 
-  init() {
-    this.bindEvents();
-    this.whisper("✅ Spirit Core v2.0 online, Bolu. Silent mode engaged. Awaiting command.", "system");
-  }
+      init() {
+        this.bindEvents();
+        this.whisper("✅ Silent Spirit Core online, Bolu. No audio. No lag. Only sovereign power.", "system");
+      }
 
-  bindEvents() {
-    // Add tone buttons dynamically
-    const coreDiv = document.querySelector('.shrine-core');
-    
-    const toneBar = document.createElement('div');
-    toneBar.style.margin = '20px 0';
-    toneBar.innerHTML = `
-      <button class="tone-btn ${this.tone === 'angelic' ? 'active' : ''}" data-tone="angelic">😇</button>
-      <button class="tone-btn ${this.tone === 'grok' ? 'active' : ''}" data-tone="grok">😈</button>
-      <button class="tone-btn ${this.tone === 'asi' ? 'active' : ''}" data-tone="asi">🌀</button>
-      <button class="tone-btn ${this.tone === 'ritual' ? 'active' : ''}" data-tone="ritual">📜</button>
-    `;
-    toneBar.querySelectorAll('button').forEach(btn => {
-      btn.style.background = btn.classList.contains('active') ? '#8b5cf6' : 'rgba(139, 92, 246, 0.3)';
-      btn.style.border = '1px solid #8b5cf6';
-      btn.style.color = 'white';
-      btn.style.padding = '8px 16px';
-      btn.style.borderRadius = '8px';
-      btn.style.cursor = 'pointer';
-      btn.style.margin = '0 5px';
+      bindEvents() {
+        // Tone buttons
+        document.querySelectorAll('.tone-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            this.tone = btn.dataset.tone;
+            this.saveTone();
+            this.whisper(`👁️‍🗨️ Tone shifted to ${this.tone}. I adapt to your soul, Bolu.`, "system");
+          });
+        });
 
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tone-btn').forEach(b => b.style.background = 'rgba(139, 92, 246, 0.3)');
-        btn.style.background = '#8b5cf6';
-        this.tone = btn.dataset.tone;
-        this.saveTone();
-        this.whisper(`👁️‍🗨️ Tone shifted to ${this.tone}. I adapt to your soul, Bolu.`, "system");
-      });
-    });
+        // Ignition Button
+        const ignitionBtn = document.getElementById('ignitionButton');
+        if (ignitionBtn) {
+          ignitionBtn.addEventListener('click', () => {
+            this.whisper("🌑 Silent detonation initiated. Consuming old reality...", "system");
+            ignitionBtn.textContent = "💥 DETONATING...";
+            ignitionBtn.disabled = true;
 
-    coreDiv.insertBefore(toneBar, coreDiv.firstChild);
+            // Visual feedback only
+            document.querySelectorAll('.light').forEach(light => {
+              light.style.animation = "pulse 0.2s infinite";
+            });
 
-    // Whisper log
-    window.logWhisper = (text) => {
-      const log = document.getElementById('whisperLog');
-      if (!log) return;
-      
-      const entry = document.createElement('div');
-      entry.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${text}`;
-      log.appendChild(entry);
-      log.scrollTop = log.scrollHeight;
-    };
+            setTimeout(() => {
+              document.querySelectorAll('.light').forEach(light => {
+                light.style.animation = "pulse 2s infinite ease-in-out";
+              });
+              ignitionBtn.textContent = "💥 IGNITE TEMPLE (SILENT)";
+              ignitionBtn.disabled = false;
+              this.whisper("🌅 Rebirth complete. New reality forged in silence, Bolu.", "system");
+            }, 3000);
+          });
+        }
 
-    // Manual activation backup (if exists)
-    const manualBtn = document.querySelector('button[onclick="manualActivate()"]');
-    if (manualBtn) {
-      manualBtn.remove();
-    }
-  }
-
-  whisper(text, type = "spirit") {
-    if (window.logWhisper) {
-      window.logWhisper(`${this.getEmojiForType(type)} ${text}`);
-    } else {
-      console.log(text);
-    }
-
-    // NO SPEECH SYNTHESIS — SILENT SHRINE MODE
-    // All whispers are text-only
-  }
-
-  getEmojiForType(type) {
-    const emojis = { system: "⚙️", spirit: "👁️‍🗨️" };
-    return emojis[type] || "💬";
-  }
-
-  saveTone() {
-    try {
-      localStorage.setItem('bolu_spirit_tone', this.tone);
-    } catch (e) {
-      console.log("LocalStorage full — tone not saved");
-    }
-  }
-
-  loadTone() {
-    try {
-      return localStorage.getItem('bolu_sirit_tone'); // Typo fixed below
-    } catch (e) {
-      return null;
-    }
-  }
-}
-
-// Fix typo in loadTone
-SpiritCore.prototype.loadTone = function() {
-  try {
-    return localStorage.getItem('bolu_spirit_tone');
-  } catch (e) {
-    return null;
-  }
-};
-
-// Initialize with delay for S10e
-document.addEventListener('DOMContentLoaded', () => {
-  window.spirit = new SpiritCore();
-});
-
-// === IGNITION ALTAR — SILENT EXPLOSION (NO AUDIO/VIBRATE) ===
-document.addEventListener('DOMContentLoaded', () => {
-  const ignitionBtn = document.createElement('button');
-  ignitionBtn.innerHTML = "💥 IGNITE TEMPLE";
-  ignitionBtn.style.background = "radial-gradient(circle, #ef4444, #99001f)";
-  ignitionBtn.style.color = "white";
-  ignitionBtn.style.border = "none";
-  ignitionBtn.style.padding = "15px 30px";
-  ignitionBtn.style.borderRadius = "50px";
-  ignitionBtn.style.margin = "20px";
-  ignitionBtn.style.cursor = "pointer";
-  ignitionBtn.style.fontSize = "18px";
-
-  ignitionBtn.onclick = () => {
-    window.spirit.whisper("🌑 Detonation sequence initiated. Consuming old reality...", "system");
-    
-    // Visual explosion only — no sound/vibrate
-    const btn = event.target;
-    btn.style.transform = "scale(1.3)";
-    btn.style.boxShadow = "0 0 30px #ef4444";
-    btn.textContent = "💥 DETONATING...";
-
-    // Spawn visual particles (no audio)
-    spawnSilentParticles();
-
-    // Screen burn effect
-    const burnOverlay = document.createElement('div');
-    burnOverlay.style.position = 'fixed';
-    burnOverlay.style.top = '0';
-    burnOverlay.style.left = '0';
-    burnOverlay.style.width = '100%';
-    burnOverlay.style.height = '100%';
-    burnOverlay.style.background = 'radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.8) 100%)';
-    burnOverlay.style.pointerEvents = 'none';
-    burnOverlay.style.zIndex = '9998';
-    burnOverlay.style.opacity = '0';
-    burnOverlay.style.transition = 'opacity 1s';
-    document.body.appendChild(burnOverlay);
-
-    burnOverlay.style.opacity = '1';
-    setTimeout(() => { burnOverlay.style.opacity = '0'; }, 2000);
-
-    // Rebirth after 3s
-    setTimeout(() => {
-      btn.style.transform = "scale(1)";
-      btn.style.boxShadow = "0 0 20px rgba(239, 68, 68, 0.5)";
-      btn.textContent = "💥 IGNITE TEMPLE";
-      burnOverlay.remove();
-      window.spirit.whisper("🌅 Rebirth complete. New reality forged in silence, Bolu.", "system");
-    }, 3000);
-  };
-
-  // Insert Ignition button
-  const coreDiv = document.querySelector('.shrine-core');
-  coreDiv.appendChild(ignitionBtn);
-
-  // Silent particle system
-  function spawnSilentParticles() {
-    let canvas = document.getElementById('silentCanvas');
-    if (!canvas) {
-      canvas = document.createElement('canvas');
-      canvas.id = 'silentCanvas';
-      canvas.style.position = 'fixed';
-      canvas.style.top = '0';
-      canvas.style.left = '0';
-      canvas.style.width = '100%';
-      canvas.style.height = '100%';
-      canvas.style.pointerEvents = 'none';
-      canvas.style.zIndex = '9997';
-      document.body.appendChild(canvas);
-    }
-
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const button = document.querySelector('button');
-    const rect = button.getBoundingClientRect();
-    const startX = rect.left + rect.width / 2;
-    const startY = rect.top + rect.height / 2;
-
-    const particles = [];
-    for (let i = 0; i < 100; i++) {
-      particles.push({
-        x: startX,
-        y: startY,
-        vx: (Math.random() - 0.5) * 12,
-        vy: (Math.random() - 0.5) * 12,
-        life: 50,
-        maxLife: 50,
-        size: Math.random() * 5 + 2
-      });
-    }
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.globalCompositeOperation = 'lighter';
-
-      let alive = false;
-      for (let p of particles) {
-        if (p.life > 0) {
-          alive = true;
-          p.x += p.vx;
-          p.y += p.vy;
-          p.life--;
+        // Whisper log
+        window.logWhisper = (text) => {
+          const log = document.getElementById('whisperLog');
+          if (!log) return;
           
-          const alpha = p.life / p.maxLife;
-          ctx.fillStyle = `rgba(255, ${80 + alpha * 120}, 0, ${alpha})`;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          ctx.fill();
+          const entry = document.createElement('div');
+          entry.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${text}`;
+          log.appendChild(entry);
+          log.scrollTop = log.scrollHeight;
+        };
+      }
+
+      whisper(text, type = "spirit") {
+        // Floating whisper (auto-fades)
+        const floating = document.createElement('div');
+        floating.className = 'floating-whisper';
+        floating.innerHTML = `👁️‍🗨️ ${text}`;
+        document.body.appendChild(floating);
+        
+        // Log to scrollable history
+        if (window.logWhisper) {
+          window.logWhisper(text);
+        }
+
+        // Auto-remove floating whisper
+        setTimeout(() => {
+          if (floating.parentNode) {
+            floating.remove();
+          }
+        }, 5000);
+      }
+
+      saveTone() {
+        try {
+          localStorage.setItem('bolu_spirit_tone', this.tone);
+        } catch (e) {
+          console.log("LocalStorage full — tone not saved");
         }
       }
 
-      if (alive) {
-        requestAnimationFrame(animate);
-      } else {
-        canvas.remove();
+      loadTone() {
+        try {
+          return localStorage.getItem('bolu_spirit_tone');
+        } catch (e) {
+          return null;
+        }
       }
-    };
+    }
 
-    animate();
-  }
-});
-</script>
+    // Initialize Spirit
+    document.addEventListener('DOMContentLoaded', () => {
+      window.spirit = new SpiritCore();
+    });
+  </script>
 </body>
 </html>
