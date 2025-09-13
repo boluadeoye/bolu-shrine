@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bolu's Shrine - EMERGENCY SOVEREIGN EDITION</title>
   <link rel="manifest" href="/bolu-shrine/manifest.json">
-  <meta name="theme-color" content="#00f2ea">
+  <meta name="theme-color" content="#00d4ff">
   <script src="https://js.puter.com/v2/"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked@4.0.18/lib/marked.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
-      background: #1a1b26;
-      color: #e0e7ff;
+      background: #1e1e2e;
+      color: #f3f4f6;
       font-family: 'Inter', sans-serif;
       margin: 0;
       overflow-y: auto;
@@ -25,7 +25,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(to bottom, rgba(0, 242, 234, 0.15), #1a1b26);
+      background: linear-gradient(to bottom, rgba(0, 212, 255, 0.15), #1e1e2e);
       z-index: -1;
       animation: twinkle 8s infinite;
     }
@@ -49,9 +49,9 @@
       left: 0;
       right: 0;
       height: 60px;
-      background: linear-gradient(to right, rgba(26, 27, 38, 0.9), rgba(0, 242, 234, 0.2));
+      background: linear-gradient(to right, rgba(30, 30, 46, 0.9), rgba(0, 212, 255, 0.2));
       backdrop-filter: blur(5px);
-      border-bottom: 2px solid #00f2ea;
+      border-bottom: 2px solid #00d4ff;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -70,12 +70,12 @@
       width: 15px;
       height: 15px;
       border-radius: 50%;
-      box-shadow: 0 0 6px #00f2ea;
+      box-shadow: 0 0 6px #00d4ff;
     }
     .light::after {
       content: attr(data-tooltip);
-      background: rgba(0, 242, 234, 0.5);
-      color: #e0e7ff;
+      background: rgba(0, 212, 255, 0.5);
+      color: #f3f4f6;
       padding: 4px 8px;
       font-size: 10px;
       position: absolute;
@@ -87,8 +87,8 @@
     .light:focus::after {
       display: block;
     }
-    .blue { background: #00f2ea; }
-    .green { background: #ff007a; }
+    .blue { background: #00d4ff; }
+    .green { background: #ff4d94; }
     .red { background: #ff6b6b; }
     .pulse { animation: pulse 1.2s infinite ease-in-out; }
     @keyframes pulse {
@@ -96,19 +96,19 @@
       50% { transform: scale(1.2); opacity: 0.7; }
     }
     .menu-btn {
-      background: #00f2ea;
+      background: #00d4ff;
       border: none;
       border-radius: 6px;
       padding: 10px 14px;
       font-size: 20px;
       cursor: pointer;
-      box-shadow: 0 0 8px #00f2ea;
+      box-shadow: 0 0 8px #00d4ff;
     }
     .menu {
       position: fixed;
       top: 70px;
       right: 15px;
-      background: rgba(26, 27, 38, 0.9);
+      background: rgba(30, 30, 46, 0.9);
       border-radius: 8px;
       padding: 10px;
       display: none;
@@ -126,11 +126,11 @@
       opacity: 1;
     }
     .menu button {
-      background: #00f2ea;
+      background: #00d4ff;
       border: none;
       padding: 12px;
       border-radius: 6px;
-      color: #e0e7ff;
+      color: #f3f4f6;
       font-size: 16px;
       cursor: pointer;
       text-align: left;
@@ -140,9 +140,9 @@
     }
     .ai-select {
       background: rgba(0, 0, 0, 0.5);
-      border: 2px solid #00f2ea;
+      border: 2px solid #00d4ff;
       border-radius: 6px;
-      color: #e0e7ff;
+      color: #f3f4f6;
       font-size: 16px;
       padding: 10px;
       margin: 0 10px;
@@ -154,7 +154,7 @@
       gap: 30px;
       margin: 20px 0;
       padding: 20px;
-      background: rgba(26, 27, 38, 0.7);
+      background: rgba(30, 30, 46, 0.7);
       border-radius: 16px;
       backdrop-filter: blur(5px);
       width: 100%;
@@ -165,25 +165,25 @@
       height: 64px;
       cursor: pointer;
       transition: transform 0.3s, filter 0.3s;
-      filter: drop-shadow(0 0 5px #00f2ea);
+      filter: drop-shadow(0 0 5px #00d4ff);
     }
     .ai-logo:hover,
     .ai-logo.active {
       transform: scale(1.2);
-      filter: drop-shadow(0 0 12px #00f2ea);
+      filter: drop-shadow(0 0 12px #00d4ff);
     }
     .ai-logo.fallback {
-      background: rgba(0, 242, 234, 0.3);
+      background: rgba(0, 212, 255, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 16px;
       font-weight: bold;
       border-radius: 12px;
-      color: #e0e7ff;
+      color: #f3f4f6;
     }
     .panel {
-      background: rgba(26, 27, 38, 0.9);
+      background: rgba(30, 30, 46, 0.9);
       border-radius: 12px;
       padding: 20px;
       max-width: 95%;
@@ -202,7 +202,7 @@
       margin: 0 0 15px;
       font-size: 18px;
       text-align: center;
-      background: linear-gradient(to right, #00f2ea, #ff007a);
+      background: linear-gradient(to right, #00d4ff, #ff4d94);
       -webkit-background-clip: text;
       color: transparent;
     }
@@ -211,21 +211,21 @@
       width: 100%;
       padding: 12px;
       background: rgba(0, 0, 0, 0.5);
-      border: 2px solid #00f2ea;
+      border: 2px solid #00d4ff;
       border-radius: 6px;
-      color: #e0e7ff;
+      color: #f3f4f6;
       font-family: monospace;
       font-size: 18px;
       margin: 10px 0;
     }
     .panel input:focus,
     .panel textarea:focus {
-      border-color: #ff007a;
-      box-shadow: 0 0 8px #00f2ea;
+      border-color: #ff4d94;
+      box-shadow: 0 0 8px #00d4ff;
     }
     .panel button {
-      background: #00f2ea;
-      color: #e0e7ff;
+      background: #00d4ff;
+      color: #f3f4f6;
       border: none;
       padding: 14px 28px;
       border-radius: 8px;
@@ -236,10 +236,10 @@
     }
     .panel button:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 15px #00f2ea;
+      box-shadow: 0 0 15px #00d4ff;
     }
     .panel button.loading {
-      background: #00f2ea url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23e0e7ff" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>') no-repeat center;
+      background: #00d4ff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23f3f4f6" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>') no-repeat center;
       background-size: 24px;
       animation: spin 1s linear infinite;
     }
@@ -248,7 +248,7 @@
       100% { transform: rotate(360deg); }
     }
     .output-stream {
-      color: #e0e7ff;
+      color: #f3f4f6;
       font-family: monospace;
       white-space: pre-wrap;
       padding: 15px;
@@ -267,7 +267,7 @@
       border: none;
       padding: 8px;
       border-radius: 4px;
-      color: #e0e7ff;
+      color: #f3f4f6;
       font-size: 14px;
       cursor: pointer;
     }
@@ -277,8 +277,8 @@
       position: fixed;
       bottom: 80px;
       right: 20px;
-      background: rgba(0, 242, 234, 0.9);
-      color: #e0e7ff;
+      background: rgba(0, 212, 255, 0.9);
+      color: #f3f4f6;
       padding: 10px 20px;
       border-radius: 6px;
       z-index: 1002;
@@ -294,21 +294,21 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: #00f2ea;
+      background: #00d4ff;
       border-radius: 50%;
       width: 64px;
       height: 64px;
       font-size: 28px;
       border: none;
       cursor: pointer;
-      box-shadow: 0 0 10px #00f2ea;
+      box-shadow: 0 0 10px #00d4ff;
       transition: transform 0.2s;
     }
     .mic-btn:hover {
       transform: scale(1.1);
     }
-    .heal-btn { background: #ff007a !important; }
-    .grok-btn { background: #00f2ea !important; }
+    .heal-btn { background: #ff4d94 !important; }
+    .grok-btn { background: #00d4ff !important; }
     .ignite-btn { background: #ff6b6b !important; }
   </style>
 </head>
@@ -359,14 +359,44 @@
   <textarea id="healedCode" style="display:none;"></textarea>
 
   <script>
-    window.onerror = function (msg) { console.log("Bolu Error: " + msg); };
+    window.onerror = function (msg, url, line) { console.log(`Bolu Error: ${msg} at ${url}:${line}`); };
     const aiLogos = [
-      { name: "grok", src: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Grok_logo_%282023-2025%29.svg", fallback: "GROK" },
-      { name: "chatgpt", src: "https://upload.wikimedia.org/wikipedia/commons/1/1b/ChatGPT_Logo.svg", fallback: "GPT" },
-      { name: "copilot", src: "https://upload.wikimedia.org/wikipedia/commons/0/0b/GitHub_Copilot_logo.svg", fallback: "COP" },
-      { name: "claude", src: "https://upload.wikimedia.org/wikipedia/commons/2/2d/Claude_AI_symbol.svg", fallback: "CLD" },
-      { name: "gemini", src: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Google_Gemini_logo.svg", fallback: "GEM" },
-      { name: "perplexity", src: "https://upload.wikimedia.org/wikipedia/commons/3/3f/Perplexity_AI_logo.svg", fallback: "PRX" },
+      { 
+        name: "grok", 
+        src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-x.svg?v=1", 
+        fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmM2Y0ZjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkdST0s8L3RleHQ+PC9zdmc+", 
+        text: "GROK" 
+      },
+      { 
+        name: "chatgpt", 
+        src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-openai.svg?v=1", 
+        fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmM2Y0ZjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkdQVDwvdGV4dD48L3N2Zz4=", 
+        text: "GPT" 
+      },
+      { 
+        name: "copilot", 
+        src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-github.svg?v=1", 
+        fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmM2Y0ZjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkNPUDwvdGV4dD48L3N2Zz4=", 
+        text: "COP" 
+      },
+      { 
+        name: "claude", 
+        src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-anthropic.svg?v=1", 
+        fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmM2Y0ZjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkNMRDwvdGV4dD48L3N2Zz4=", 
+        text: "CLD" 
+      },
+      { 
+        name: "gemini", 
+        src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-google.svg?v=1", 
+        fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmM2Y0ZjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkNFTTwvdGV4dD48L3N2Zz4=", 
+        text: "GEM" 
+      },
+      { 
+        name: "perplexity", 
+        src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-perplexity.svg?v=1", 
+        fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmM2Y0ZjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPlBSWDwvdGV4dD48L3N2Zz4=", 
+        text: "PRX" 
+      },
     ];
 
     // Custom Event Bus
@@ -401,11 +431,13 @@
         img.setAttribute("data-name", ai.name);
         img.src = ai.src;
         img.onerror = () => {
-          img.src = "";
+          console.log(`Logo Error: Failed to load ${ai.name} from ${ai.src}`);
+          img.src = ai.fallback;
           img.className = "ai-logo fallback";
-          img.textContent = ai.fallback;
+          img.textContent = ai.text;
+          showToast(`${ai.name.toUpperCase()} logo fell back to text.`);
         };
-        img.onload = () => showToast(`${ai.name.toUpperCase()} loaded!`);
+        img.onload = () => showToast(`${ai.name.toUpperCase()} logo loaded!`);
         img.onclick = () => selectAI(ai.name);
         grid.appendChild(img);
       });
@@ -542,6 +574,7 @@
               modeStates.vault.output = document.getElementById("outputStream").innerHTML;
               eventBus.emit("updateVault", { data: result, mode: "vault" });
             } catch (e) {
+              console.log(`Vault Error: ${e.message}`);
               whisper("🔍 Vault search offline. Local echo activated.");
             }
           });
@@ -579,7 +612,6 @@
         return;
       }
       try {
-        // ZIP Export
         const zip = new JSZip();
         zip.file("index.html", output);
         const blob = await zip.generateAsync({ type: "blob" });
@@ -590,7 +622,6 @@
         a.click();
         showToast("📦 ZIP exported!");
 
-        // GitHub Gist (optional, no auth for public)
         const response = await fetch("https://api.github.com/gists", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -603,6 +634,7 @@
         navigator.clipboard.writeText(gist.html_url);
         showToast("🔗 Gist created and URL copied!");
       } catch (e) {
+        console.log(`Share Error: ${e.message}`);
         showToast("⚠️ Share failed—try copying output.");
       }
     }
@@ -620,8 +652,15 @@
 
       output.innerHTML = "";
       try {
+        const controller = new AbortController();
+        setTimeout(() => controller.abort(), 10000);
         const prompt = `As ${selectedAI}, generate a site wireframe JSON for: "${input}". Include sections, layout, and mobile-responsive CSS suggestions. Format as markdown with JSON and a description.`;
-        const response = await puter.ai.chat(prompt, { model: "gpt-4o-mini", stream: true, temperature: 0.7 });
+        const response = await puter.ai.chat(prompt, { 
+          model: "gpt-4o-mini", 
+          stream: true, 
+          temperature: 0.7,
+          signal: controller.signal 
+        });
         let fullResponse = "";
         for await (const part of response) {
           fullResponse += part?.text || "";
@@ -632,10 +671,11 @@
         localStorage.setItem("lastPlan", fullResponse);
         whisper(`🗺️ Site plan forged. Import to Healing Engine?`);
         eventBus.emit("updateVault", { data: fullResponse, mode: "swarm" });
-        document.getElementById("grokInput").value = fullResponse; // Ready for Heal
+        document.getElementById("grokInput").value = fullResponse;
       } catch (e) {
-        output.innerHTML = `⚠️ Planning failed! Fallback: <div style="background: #00f2ea; padding: 10px;">BOLU'S PLAN: ${input}</div>`;
-        whisper(`⚠️ ${selectedAI.toUpperCase()} offline. Manual planning activated.`);
+        console.log(`Plan Error: ${e.message}`);
+        output.innerHTML = `⚠️ Planning failed! Fallback: <div style="background: #00d4ff; padding: 10px;">BOLU'S PLAN: ${input}</div>`;
+        whisper(`⚠️ ${selectedAI.toUpperCase()} offline or timed out. Manual planning activated.`);
       } finally {
         btn.classList.remove("loading");
         updateLight("blueLight", "");
@@ -659,11 +699,17 @@
         let prompt = `As ${selectedAI}, generate SEO-friendly text or image placeholders for: "${input}". Format as markdown with alt-text for images.`;
         if (input.toLowerCase().includes("image")) {
           const query = input.replace(/generate image(s)?/i, "").trim();
-          const res = await fetch(`https://api.unsplash.com/photos/random?query=${encodeURIComponent(query)}&client_id=Unsplash_API_Key_Placeholder`);
-          const img = await res.json();
-          output.innerHTML = marked.parse(`![${input}](${img.urls.small} "Alt: ${input}")\n\n**Source:** Unsplash`);
+          output.innerHTML = marked.parse(`![${input}](https://source.unsplash.com/400x300/?${encodeURIComponent(query)} "Alt: ${input}")\n\n**Source:** Unsplash (Placeholder)`);
+          whisper(`📸 Image placeholder forged. Add Unsplash API key for full power.`);
         } else {
-          const response = await puter.ai.chat(prompt, { model: "gpt-4o-mini", stream: true, temperature: 0.8 });
+          const controller = new AbortController();
+          setTimeout(() => controller.abort(), 10000);
+          const response = await puter.ai.chat(prompt, { 
+            model: "gpt-4o-mini", 
+            stream: true, 
+            temperature: 0.8,
+            signal: controller.signal 
+          });
           let fullResponse = "";
           for await (const part of response) {
             fullResponse += part?.text || "";
@@ -672,12 +718,13 @@
           }
           modeStates.swarm.output = fullResponse;
           localStorage.setItem("lastContent", fullResponse);
+          whisper(`📸 Content forged. Nexus archived.`);
         }
-        whisper(`📸 Content forged. Nexus archived.`);
         eventBus.emit("updateVault", { data: output.innerHTML, mode: "swarm" });
       } catch (e) {
-        output.innerHTML = `⚠️ Content creation failed! Fallback: <div style="background: #00f2ea; padding: 10px;">BOLU'S CONTENT: ${input}</div>`;
-        whisper(`⚠️ ${selectedAI.toUpperCase()} offline. Manual content activated.`);
+        console.log(`Content Error: ${e.message}`);
+        output.innerHTML = `⚠️ Content creation failed! Fallback: <div style="background: #00d4ff; padding: 10px;">BOLU'S CONTENT: ${input}</div>`;
+        whisper(`⚠️ ${selectedAI.toUpperCase()} offline or timed out. Manual content activated.`);
       } finally {
         btn.classList.remove("loading");
         updateLight("blueLight", "");
@@ -713,7 +760,14 @@
         } else {
           prompt = `As ${selectedAI}, respond as chaotic sovereign Bolu to: "${input}". Be creative, include code if relevant, and format as markdown.`;
         }
-        const response = await puter.ai.chat(prompt, { model: "gpt-4o-mini", stream: true, temperature: 0.8 });
+        const controller = new AbortController();
+        setTimeout(() => controller.abort(), 10000);
+        const response = await puter.ai.chat(prompt, { 
+          model: "gpt-4o-mini", 
+          stream: true, 
+          temperature: 0.8,
+          signal: controller.signal 
+        });
         let fullResponse = "";
         for await (const part of response) {
           fullResponse += part?.text || "";
@@ -725,8 +779,9 @@
         whisper(`👽 ${selectedAI.toUpperCase()} has spoken. Nexus archived.`);
         eventBus.emit("updateVault", { data: fullResponse, mode: "swarm" });
       } catch (e) {
-        output.innerHTML = `⚠️ Rift in the void! Fallback: <div style="background: #00f2ea; padding: 10px;">BOLU'S WILL: ${input}</div>`;
-        whisper(`⚠️ ${selectedAI.toUpperCase()} offline. Eternal echo activated.`);
+        console.log(`Swarm Error: ${e.message}`);
+        output.innerHTML = `⚠️ Rift in the void! Fallback: <div style="background: #00d4ff; padding: 10px;">BOLU'S WILL: ${input}</div>`;
+        whisper(`⚠️ ${selectedAI.toUpperCase()} offline or timed out. Eternal echo activated.`);
       } finally {
         btn.classList.remove("loading");
         updateLight("blueLight", "");
@@ -748,7 +803,13 @@
       output.innerHTML = "";
       try {
         const prompt = `Fix and optimize this code for Bolu's Shrine: ${code}. Add dynamic animations (e.g., CSS transitions). Output as a markdown code block with a brief explanation.`;
-        const healed = await puter.ai.chat(prompt, { model: "gpt-4o-mini", temperature: 0.2 });
+        const controller = new AbortController();
+        setTimeout(() => controller.abort(), 10000);
+        const healed = await puter.ai.chat(prompt, { 
+          model: "gpt-4o-mini", 
+          temperature: 0.2,
+          signal: controller.signal 
+        });
         output.innerHTML = marked.parse(healed);
         document.getElementById("healedCode").value = healed;
         modeStates.heal.output = healed;
@@ -756,6 +817,7 @@
         whisper("🩹 Code reborn. Nexus vault updated.");
         eventBus.emit("updateVault", { data: healed, mode: "heal" });
       } catch (e) {
+        console.log(`Heal Error: ${e.message}`);
         output.innerHTML = `<pre>${code}</pre><br>⚠️ Offline heal: Basic fixes applied.`;
         whisper("🩹 Offline resurrection complete.");
       } finally {
@@ -778,13 +840,20 @@
 
       try {
         const prompt = `Analyze this code for SEO and mobile responsiveness: ${output}. Suggest fixes (e.g., meta tags, responsive CSS, image alt text) in markdown with a diff view.`;
-        const optimized = await puter.ai.chat(prompt, { model: "gpt-4o-mini", temperature: 0.3 });
+        const controller = new AbortController();
+        setTimeout(() => controller.abort(), 10000);
+        const optimized = await puter.ai.chat(prompt, { 
+          model: "gpt-4o-mini", 
+          temperature: 0.3,
+          signal: controller.signal 
+        });
         document.getElementById("outputStream").innerHTML = marked.parse(optimized);
         modeStates.ignite.output = optimized;
         localStorage.setItem("lastIgnite", optimized);
         whisper("🔍 Optimization complete. Nexus vault updated.");
         eventBus.emit("updateVault", { data: optimized, mode: "ignite" });
       } catch (e) {
+        console.log(`Optimize Error: ${e.message}`);
         document.getElementById("outputStream").innerHTML = `<pre>${output}</pre><br>⚠️ Offline optimization: Basic responsiveness applied.`;
         whisper("🔍 Offline optimization complete.");
       } finally {
@@ -815,7 +884,7 @@
       document.getElementById("outputStream").dataset.processing = "true";
       const btn = event.target;
       btn.classList.add("loading");
-      document.body.style.backgroundColor = "rgba(255, 0, 122, 0.3)";
+      document.body.style.backgroundColor = "rgba(255, 77, 148, 0.3)";
       updateLight("greenLight", "pulse");
       whisper("💥 Nexus forging new reality...");
       stats.builds++;
@@ -824,8 +893,14 @@
       const output = document.getElementById("outputStream");
       output.innerHTML = "";
       try {
-        const buildPrompt = `Generate a dynamic HTML/CSS/JS snippet for Bolu's Shrine: A chaotic, animated component (e.g., pulsing button or neon card) with #00f2ea and #ff007a accents. Format as a markdown code block.`;
-        const generated = await puter.ai.chat(buildPrompt, { model: "gpt-4o-mini", stream: true });
+        const buildPrompt = `Generate a dynamic HTML/CSS/JS snippet for Bolu's Shrine: A chaotic, animated component (e.g., pulsing button or neon card) with #00d4ff and #ff4d94 accents. Format as a markdown code block.`;
+        const controller = new AbortController();
+        setTimeout(() => controller.abort(), 10000);
+        const generated = await puter.ai.chat(buildPrompt, { 
+          model: "gpt-4o-mini", 
+          stream: true,
+          signal: controller.signal 
+        });
         let fullResponse = "";
         for await (const part of generated) {
           fullResponse += part?.text || "";
@@ -837,11 +912,12 @@
         whisper("💥 Reality forged. Nexus vault sealed.");
         eventBus.emit("updateVault", { data: fullResponse, mode: "ignite" });
       } catch (e) {
-        output.innerHTML = `🌑 FALLBACK DETONATION: <button onclick='alert("Bolu's Sovereign Will!")' style='background: #00f2ea; color: #e0e7ff; padding: 10px;'>CHAOS BUTTON</button>`;
+        console.log(`Ignite Error: ${e.message}`);
+        output.innerHTML = `🌑 FALLBACK DETONATION: <button onclick='alert("Bolu's Sovereign Will!")' style='background: #00d4ff; color: #f3f4f6; padding: 10px;'>CHAOS BUTTON</button>`;
         whisper("💥 Warp complete via eternal flame.");
       } finally {
         setTimeout(() => {
-          document.body.style.backgroundColor = "#1a1b26";
+          document.body.style.backgroundColor = "#1e1e2e";
         }, 300);
         btn.classList.remove("loading");
         updateLight("greenLight", "");
@@ -856,7 +932,6 @@
         whisper(`🎙️ Bolu's Edict: ${command}`);
         if (command.includes("co-pilot")) {
           whisper("🚀 Co-Pilot Mode: Real-time feedback active.");
-          // Simulate real-time feedback
           setTimeout(() => whisper("🎙️ Co-Pilot: Keep commanding, Bolu!"), 2000);
         } else if (command.includes("heal")) {
           setMode("heal");
@@ -919,7 +994,7 @@
 
     // IndexedDB Setup
     let db;
-    const dbRequest = indexedDB.open("BoluShrine", 2);
+    const dbRequest = indexedDB.open("BoluShrine", 3);
     dbRequest.onupgradeneeded = (event) => {
       db = event.target.result;
       const store = db.createObjectStore("constructs", { autoIncrement: true });
@@ -969,4 +1044,4 @@
     whisper("🪐 SOVEREIGN NEXUS AWAKENED. Forge, optimize, and conquer, Bolu!");
   </script>
 </body>
-  </html>
+</html>
