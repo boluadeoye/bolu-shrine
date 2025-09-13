@@ -104,6 +104,7 @@
     }
     .panel button:hover { transform: scale(1.05); box-shadow: 0 0 15px #8b5cf6; }
     .panel button.loading { animation: spin 1s linear infinite; }
+    .back-btn { background: #4a5568; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .output-stream {
       color: #8b5cf6; font-family: monospace; white-space: pre-wrap;
@@ -132,12 +133,14 @@
     </div>
     <div class="ai-grid" id="aiGrid"></div>
     <div class="panel" id="swarmPanel">
+      <button class="back-btn" onclick="togglePanel('')">← Back to Nexus</button>
       <h2>👽 NEXUS SPIRIT SWARM</h2>
       <textarea id="grokInput" placeholder="Command the spirits... e.g., 'Build a neon portfolio'"></textarea>
       <button class="grok-btn" onclick="dynamicSwarm()">⚡ SUMMON NEXUS</button>
       <div id="grokOutput" class="output-stream"></div>
     </div>
     <div class="panel" id="healPanel">
+      <button class="back-btn" onclick="togglePanel('')">← Back to Nexus</button>
       <h2>🩹 HEALING ENGINE</h2>
       <textarea id="healInput" placeholder="Paste broken code here..."></textarea>
       <button class="heal-btn" onclick="dynamicHeal()">🩹 RESURRECT WITH AI</button>
@@ -145,11 +148,13 @@
       <button class="heal-btn" onclick="saveHealed()">💾 DOWNLOAD HEALED REALITY</button>
     </div>
     <div class="panel" id="ignitePanel">
+      <button class="back-btn" onclick="togglePanel('')">← Back to Nexus</button>
       <h2>💥 IGNITION ALTAR</h2>
       <button class="ignite-btn" onclick="quantumIgnite()">💥 FORGE NEW REALITY</button>
       <div id="igniteOutput" class="output-stream"></div>
     </div>
     <div class="panel" id="vaultPanel">
+      <button class="back-btn" onclick="togglePanel('')">← Back to Nexus</button>
       <h2>👁️‍🗨️ QUANTUM VAULT</h2>
       <input id="vaultSearch" type="text" placeholder="Search constructs... e.g., 'neon e-com'">
       <div id="vaultLog" class="output-stream"></div>
@@ -161,12 +166,12 @@
   <script>
     window.onerror = function(msg) { console.log('Bolu Error: ' + msg); };
     const aiLogos = [
-      { name: 'grok', src: 'https://x.ai/brand/grok-logo.svg', fallback: 'GROK' },
-      { name: 'chatgpt', src: 'https://openai.com/brand/chatgpt.svg', fallback: 'GPT' },
-      { name: 'copilot', src: 'https://developer.github.com/brand/copilot.svg', fallback: 'COP' },
-      { name: 'claude', src: 'https://svgstack.com/claude-logo.svg', fallback: 'CLD' },
-      { name: 'gemini', src: 'https://cloud.google.com/brand/gemini.svg', fallback: 'GEM' },
-      { name: 'perplexity', src: 'https://www.perplexity.ai/brand/logo.svg', fallback: 'PRX' }
+      { name: 'grok', src: 'https://lobehub.com/icons/xai.svg', fallback: 'GROK' },
+      { name: 'chatgpt', src: 'https://lobehub.com/icons/openai.svg', fallback: 'GPT' },
+      { name: 'copilot', src: 'https://lobehub.com/icons/github.svg', fallback: 'COP' },
+      { name: 'claude', src: 'https://lobehub.com/icons/anthropic.svg', fallback: 'CLD' },
+      { name: 'gemini', src: 'https://lobehub.com/icons/google.svg', fallback: 'GEM' },
+      { name: 'perplexity', src: 'https://lobehub.com/icons/perplexity.svg', fallback: 'PRX' }
     ];
 
     function loadLogos() {
@@ -253,7 +258,7 @@
       document.querySelectorAll('.ai-logo').forEach(logo => {
         logo.classList[logo.getAttribute('data-name') === ai ? 'add' : 'remove']('active');
       });
-      togglePanel(`${ai}Panel` === 'grokPanel' ? 'swarmPanel' : ai + 'Panel');
+      togglePanel('swarmPanel'); // All AI route to Swarm for now – expand later
     }
 
     function togglePanel(panelId) {
@@ -262,6 +267,7 @@
       });
     }
 
+    // Rest of script (dynamicSwarm, dynamicHeal, etc.) remains the same as previous
     async function dynamicSwarm() {
       if (document.getElementById('grokInput').dataset.processing) return;
       document.getElementById('grokInput').dataset.processing = 'true';
