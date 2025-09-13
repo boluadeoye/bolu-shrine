@@ -125,17 +125,12 @@
 <body>
   <canvas class="stars"></canvas>
   <div class="nexus-container">
-    <!-- Triad Lights -->
     <div class="nexus-hud">
       <div class="light blue pulse" data-tooltip="Bolu, Spirits Streaming" role="status" id="blueLight"></div>
       <div class="light green" data-tooltip="Bolu, Constructs Forged" role="status" id="greenLight"></div>
       <div class="light red" data-tooltip="Bolu, Healing Active" role="status" id="redLight"></div>
     </div>
-    <!-- AI Logo Hub -->
-    <div class="ai-grid" id="aiGrid">
-      <!-- Logos loaded dynamically -->
-    </div>
-    <!-- Panels -->
+    <div class="ai-grid" id="aiGrid"></div>
     <div class="panel" id="swarmPanel">
       <h2>👽 NEXUS SPIRIT SWARM</h2>
       <textarea id="grokInput" placeholder="Command the spirits... e.g., 'Build a neon portfolio'"></textarea>
@@ -164,7 +159,7 @@
   <textarea id="healedCode" style="display:none;"></textarea>
 
   <script>
-    // === DYNAMIC LOGO LOADING ===
+    window.onerror = function(msg) { console.log('Bolu Error: ' + msg); };
     const aiLogos = [
       { name: 'grok', src: 'https://x.ai/brand/grok-logo.svg', fallback: 'GROK' },
       { name: 'chatgpt', src: 'https://openai.com/brand/chatgpt.svg', fallback: 'GPT' },
@@ -187,7 +182,7 @@
           img.src = '';
           img.className = 'ai-logo fallback';
           img.textContent = ai.fallback;
-          whisper(`⚠️ ${ai.name.toUpperCase()} logo lost in the void. Fallback summoned.`);
+          whisper(`⚠️ ${ai.name.toUpperCase()} logo lost in the void.`);
         };
         img.onclick = () => selectAI(ai.name);
         grid.appendChild(img);
@@ -195,31 +190,34 @@
       whisper("🌌 AI spirits aligned in Nexus grid.");
     }
 
-    // === PARTICLE STARFIELD ===
-    const canvas = document.querySelector('.stars');
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    const stars = new THREE.BufferGeometry();
-    const vertices = [];
-    for (let i = 0; i = 1000; i++) {
-      vertices.push((Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100);
+    let starField = null, renderer = null, scene = null, camera = null;
+    try {
+      const canvas = document.querySelector('.stars');
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      const stars = new THREE.BufferGeometry();
+      const vertices = [];
+      for (let i = 0; i < 500; i++) {
+        vertices.push((Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100);
+      }
+      stars.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+      const material = new THREE.PointsMaterial({ color: 0x8b5cf6, size: 0.1 });
+      starField = new THREE.Points(stars, material);
+      scene.add(starField);
+      camera.position.z = 50;
+    } catch (e) {
+      whisper('⚠️ Starfield offline—cosmic void remains, Bolu.');
     }
-    stars.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-    const material = new THREE.PointsMaterial({ color: 0x8b5cf6, size: 0.1 });
-    const starField = new THREE.Points(stars, material);
-    scene.add(starField);
-    camera.position.z = 50;
     let particleSpeed = 0.001;
     function animate() {
       requestAnimationFrame(animate);
-      starField.rotation.y += particleSpeed;
-      renderer.render(scene, camera);
+      if (starField) starField.rotation.y += particleSpeed;
+      if (renderer && scene && camera) renderer.render(scene, camera);
     }
-    animate();
+    if (starField) animate();
 
-    // === DYNAMIC CORE ===
     let selectedAI = 'grok';
     function whisper(text) {
       const log = document.getElementById('vaultLog');
@@ -255,7 +253,7 @@
       document.querySelectorAll('.ai-logo').forEach(logo => {
         logo.classList[logo.getAttribute('data-name') === ai ? 'add' : 'remove']('active');
       });
-      togglePanel(`${ai}Panel`);
+      togglePanel(`${ai}Panel` === 'grokPanel' ? 'swarmPanel' : ai + 'Panel');
     }
 
     function togglePanel(panelId) {
@@ -264,8 +262,9 @@
       });
     }
 
-    // === NEXUS SPIRIT SWARM ===
     async function dynamicSwarm() {
+      if (document.getElementById('grokInput').dataset.processing) return;
+      document.getElementById('grokInput').dataset.processing = 'true';
       const input = document.getElementById('grokInput').value || "NO WILL SPOKEN";
       const output = document.getElementById('grokOutput');
       const btn = event.target;
@@ -295,11 +294,13 @@
         btn.classList.remove('loading');
         updateLight('blueLight', '');
         particleSpeed = 0.001;
+        delete document.getElementById('grokInput').dataset.processing;
       }
     }
 
-    // === DYNAMIC HEALING ===
     async function dynamicHeal() {
+      if (document.getElementById('healInput').dataset.processing) return;
+      document.getElementById('healInput').dataset.processing = 'true';
       const code = document.getElementById('healInput').value || "<!-- VOID CODE -->";
       const output = document.getElementById('healOutput');
       const btn = event.target;
@@ -325,6 +326,7 @@
         btn.classList.remove('loading');
         updateLight('redLight', '');
         particleSpeed = 0.001;
+        delete document.getElementById('healInput').dataset.processing;
       }
     }
 
@@ -342,8 +344,9 @@
       whisper("💾 Forged reality downloaded. Deploy to the cosmos, Bolu.");
     }
 
-    // === QUANTUM IGNITION ===
     async function quantumIgnite() {
+      if (document.getElementById('igniteOutput').dataset.processing) return;
+      document.getElementById('igniteOutput').dataset.processing = 'true';
       const btn = event.target;
       btn.textContent = "💥 WARPING COSMOS...";
       btn.classList.add('loading');
@@ -374,10 +377,10 @@
         btn.classList.remove('loading');
         updateLight('greenLight', '');
         particleSpeed = 0.001;
+        delete document.getElementById('igniteOutput').dataset.processing;
       }
     }
 
-    // === VOICE RITUAL ===
     function startVoice() {
       const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
       recognition.onresult = async (event) => {
@@ -386,12 +389,12 @@
         document.getElementById('grokInput').value = command;
         await dynamicSwarm();
       };
+      recognition.onerror = () => whisper('⚠️ Voice ritual failed—speak again, Bolu.');
       recognition.start();
       updateLight('blueLight', 'pulse');
       setTimeout(() => updateLight('blueLight', ''), 5000);
     }
 
-    // === VAULT SEARCH ===
     document.getElementById('vaultSearch').addEventListener('input', async (e) => {
       const query = e.target.value;
       if (!query) return;
@@ -404,7 +407,6 @@
       }
     });
 
-    // Initialize
     loadLogos();
     loadSession();
     whisper("🪐 SOVEREIGN NEXUS AWAKENED. Command your cosmic empire, Bolu.");
