@@ -18,6 +18,7 @@
       margin: 0;
       overflow-y: auto;
       min-height: 100vh;
+      overscroll-behavior: none;
     }
     .stars {
       position: fixed;
@@ -399,7 +400,7 @@
   <script>
     window.onerror = function (msg, url, line) {
       console.log(`Bolu Error: ${msg} at ${url}:${line}`);
-      showToast(`⚠️ Error detected. Check console and reload.`);
+      showToast(`⚠️ Error: ${msg}. Check console and reload.`);
     };
 
     const aiLogos = [
@@ -526,6 +527,7 @@
       const panelContent = document.getElementById("panelContent");
       const morePanel = document.getElementById("morePanel");
       if (!mainPanel || !panelTitle || !panelContent) {
+        console.log("Mode Error: Panel elements missing");
         showToast("⚠️ Panel elements missing.");
         return;
       }
@@ -647,15 +649,20 @@
         showToast("⚠️ No output to share!");
         return;
       }
-      const zip = new JSZip();
-      zip.file("index.html", output.textContent);
-      const blob = await zip.generateAsync({ type: "blob" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `bolu-shrine-${Date.now()}.zip`;
-      a.click();
-      showToast("📦 ZIP exported!");
+      try {
+        const zip = new JSZip();
+        zip.file("index.html", output.textContent);
+        const blob = await zip.generateAsync({ type: "blob" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `bolu-shrine-${Date.now()}.zip`;
+        a.click();
+        showToast("📦 ZIP exported!");
+      } catch (e) {
+        console.log(`Share Error: ${e.message}`);
+        showToast("⚠️ Share failed.");
+      }
     }
 
     async function importToHeal() {
@@ -679,7 +686,9 @@
     async function withRetry(fn, retries = 5, delay = 3000) {
       for (let i = 0; i < retries; i++) {
         try {
-          return await fn();
+          const result = await fn();
+          if (!result) throw new Error("Empty response from AI");
+          return result;
         } catch (e) {
           console.log(`Retry ${i + 1}/${retries}: ${e.message}`);
           if (i === retries - 1) throw new Error(`AI Failure: ${e.message}`);
@@ -688,83 +697,16 @@
       }
     }
 
-    async function dynamicSwarm() {
-      try {
-        console.log("Button: Summon Nexus clicked");
-        const grokInput = document.getElementById("grokInput");
-        if (grokInput?.dataset.processing) return;
-        grokInput.dataset.processing = "true";
-        const input = grokInput.value || "NO WILL SPOKEN";
-        modeStates.swarm.input = input;
-        const output = document.getElementById("outputStream");
-        const btn = document.querySelector('button[onclick="dynamicSwarm()"]');
-        if (!output || !btn) {
-          console.log("Swarm Error: #outputStream or button not found");
-          showToast("⚠️ Swarm elements missing.");
-          return;
-        }
-        btn.classList.add("loading");
-        output.classList.add("loading");
-        updateLight("blueLight", "pulse");
-        whisper(`👽 Summoning ${selectedAI.toUpperCase()} for: ${input}`);
-
-        output.innerHTML = "";
-        let prompt;
-        const inputLower = input.toLowerCase();
-        if (inputLower.includes("explain") || inputLower.includes("what is") || inputLower.includes("how does")) {
-          prompt = `As ${selectedAI}, provide a clear explanation for: "${input}". Format as markdown with bullet points or code blocks.`;
-        } else if (inputLower.includes("code") || inputLower.includes("build") || inputLower.includes("create")) {
-          prompt = `As ${selectedAI}, generate a working code snippet for: "${input}". Include comments and animations. Format as markdown code block.`;
-        } else {
-          prompt = `As ${selectedAI}, respond as chaotic sovereign Bolu to: "${input}". Be creative, include code if relevant, format as markdown.`;
-        }
-        const response = await withRetry(() => puter.ai.chat(prompt, { 
-          model: "gpt-4o-mini", 
-          stream: true, 
-          temperature: 0.8
-        }));
-        let fullResponse = "";
-        for await (const part of response) {
-          if (!part?.text) {
-            console.log("Swarm: Empty response chunk");
-            continue;
-          }
-          console.log(`Swarm: Received chunk: ${part.text.substring(0, 50)}...`);
-          fullResponse += part.text;
-          requestAnimationFrame(() => {
-            output.innerHTML = marked.parse(fullResponse) || "Rendering...";
-            output.scrollTop = output.scrollHeight;
-          });
-        }
-        if (!fullResponse) {
-          console.log("Swarm: No response received");
-          fullResponse = localStorage.getItem("lastGrok") || `## Fallback Response\nBOLU'S WILL: ${input}`;
-          output.innerHTML = marked.parse(fullResponse);
-        }
-        modeStates.swarm.output = fullResponse;
-        localStorage.setItem("lastGrok", fullResponse);
-        whisper(`👽 ${selectedAI.toUpperCase()} has spoken.`);
-        eventBus.emit("updateVault", { data: fullResponse, mode: "swarm" });
-        console.log("Swarm: Response rendered successfully");
-      } catch (e) {
-        console.log(`Swarm Error: ${e.message}`);
-        output.innerHTML = marked.parse(localStorage.getItem("lastGrok") || `## Error\nFailed to summon ${selectedAI}. Try again or use shorter input.`);
-        showToast("⚠️ Swarm failed. Using cached response.");
-      } finally {
-        const btn = document.querySelector('button[onclick="dynamicSwarm()"]');
-        if (btn) btn.classList.remove("loading");
-        output.classList.remove("loading");
-        updateLight("blueLight", "");
-        const grokInput = document.getElementById("grokInput");
-        if (grokInput) delete grokInput.dataset.processing;
-      }
-    }
-
     async function planSite() {
       try {
         console.log("Button: Plan Site clicked");
         const grokInput = document.getElementById("grokInput");
-        if (grokInput?.dataset.processing) return;
+        if (!grokInput) {
+          console.log("Plan Error: #grokInput not found");
+          showToast("⚠️ Input element missing.");
+          return;
+        }
+        if (grokInput.dataset.processing) return;
         grokInput.dataset.processing = "true";
         const input = grokInput.value || "NO WILL SPOKEN";
         modeStates.swarm.input = input;
@@ -804,8 +746,13 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
           console.log(`Plan: Received chunk: ${part.text.substring(0, 50)}...`);
           fullResponse += part.text;
           requestAnimationFrame(() => {
-            output.innerHTML = marked.parse(fullResponse) || "Rendering...";
-            output.scrollTop = output.scrollHeight;
+            try {
+              output.innerHTML = marked.parse(fullResponse) || "Rendering...";
+              output.scrollTop = output.scrollHeight;
+            } catch (e) {
+              console.log(`Plan Render Error: ${e.message}`);
+              output.innerHTML = `<pre>Error rendering response: ${e.message}</pre>`;
+            }
           });
         }
         if (!fullResponse) {
@@ -828,7 +775,8 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
   <style>
     body { background: #1e1e2e; color: #f3f4f6; }
     header, main, footer { padding: 20px; text-align: center; }
-    button { background: #00d4ff; border: none; padding: 10px; }
+    button { background: #00d4ff; border: none; padding: 10px; transition: transform 0.2s; }
+    button:hover { transform: scale(1.05); }
   </style>
 </head>
 <body>
@@ -848,14 +796,18 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
         console.log("Plan: Site plan rendered successfully");
       } catch (e) {
         console.log(`Plan Error: ${e.message}`);
-        output.innerHTML = marked.parse(localStorage.getItem("lastPlan") || `## Error\nFailed to plan site. Try again.`);
-        showToast("⚠️ Planner failed. Using cached response.");
+        const output = document.getElementById("outputStream");
+        if (output) {
+          output.innerHTML = marked.parse(localStorage.getItem("lastPlan") || `## Error\nFailed to plan site: ${e.message}. Try again.`);
+          showToast("⚠️ Planner failed. Using cached response.");
+        }
       } finally {
         const btn = document.querySelector('button[onclick="planSite()"]');
-        if (btn) btn.classList.remove("loading");
-        output.classList.remove("loading");
-        updateLight("blueLight", "");
+        const output = document.getElementById("outputStream");
         const grokInput = document.getElementById("grokInput");
+        if (btn) btn.classList.remove("loading");
+        if (output) output.classList.remove("loading");
+        updateLight("blueLight", "");
         if (grokInput) delete grokInput.dataset.processing;
       }
     }
@@ -864,7 +816,12 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
       try {
         console.log("Button: Generate Content clicked");
         const grokInput = document.getElementById("grokInput");
-        if (grokInput?.dataset.processing) return;
+        if (!grokInput) {
+          console.log("Content Error: #grokInput not found");
+          showToast("⚠️ Input element missing.");
+          return;
+        }
+        if (grokInput.dataset.processing) return;
         grokInput.dataset.processing = "true";
         const input = grokInput.value || "NO WILL SPOKEN";
         modeStates.swarm.input = input;
@@ -883,14 +840,14 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
         output.innerHTML = "";
         let fullResponse = "";
         if (input.toLowerCase().includes("image")) {
-          const query = input.replace(/generate image(s)?/i, "").trim();
+          const query = input.replace(/generate image(s)?/i, "").trim() || "random";
           const unsplashUrl = `https://source.unsplash.com/400x300/?${encodeURIComponent(query)}`;
-          fullResponse = `![${input}]( ${unsplashUrl} "Alt: ${input}")\n\n**Source:** Unsplash (Placeholder)`;
+          fullResponse = `![${input}]( ${unsplashUrl} "Alt: ${input}")\n\n**Source:** Unsplash (Placeholder)\n\n**Note:** Use this placeholder for previews; replace with licensed images for production.`;
           output.innerHTML = marked.parse(fullResponse);
           whisper(`📸 Image placeholder forged.`);
           console.log("Content: Image placeholder rendered");
         } else {
-          const prompt = `Generate SEO-friendly text for: "${input}". Format as markdown with headings, lists, and keywords.`;
+          const prompt = `Generate SEO-friendly text for: "${input}". Format as markdown with headings, lists, and keywords. Include a 160-char meta description.`;
           const response = await withRetry(() => puter.ai.chat(prompt, { 
             model: "gpt-4o-mini", 
             stream: true, 
@@ -904,13 +861,23 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
             console.log(`Content: Received chunk: ${part.text.substring(0, 50)}...`);
             fullResponse += part.text;
             requestAnimationFrame(() => {
-              output.innerHTML = marked.parse(fullResponse) || "Rendering...";
-              output.scrollTop = output.scrollHeight;
+              try {
+                output.innerHTML = marked.parse(fullResponse) || "Rendering...";
+                output.scrollTop = output.scrollHeight;
+              } catch (e) {
+                console.log(`Content Render Error: ${e.message}`);
+                output.innerHTML = `<pre>Error rendering response: ${e.message}</pre>`;
+              }
             });
           }
           if (!fullResponse) {
             console.log("Content: No response received");
-            fullResponse = localStorage.getItem("lastContent") || `## Fallback Content\nBOLU'S CONTENT: ${input}`;
+            fullResponse = localStorage.getItem("lastContent") || `
+## Fallback Content
+**Topic**: ${input}
+**Content**: No response from ${selectedAI}. Try a shorter query or reload.
+**Meta Description**: Explore ${input} with Bolu's Shrine. (140 chars)
+            `;
             output.innerHTML = marked.parse(fullResponse);
           }
         }
@@ -921,14 +888,18 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
         console.log("Content: Text content rendered");
       } catch (e) {
         console.log(`Content Error: ${e.message}`);
-        output.innerHTML = marked.parse(localStorage.getItem("lastContent") || `## Error\nFailed to generate content. Try again.`);
-        showToast("⚠️ Content generation failed. Using cached response.");
+        const output = document.getElementById("outputStream");
+        if (output) {
+          output.innerHTML = marked.parse(localStorage.getItem("lastContent") || `## Error\nFailed to generate content: ${e.message}. Try again.`);
+          showToast("⚠️ Content generation failed. Using cached response.");
+        }
       } finally {
         const btn = document.querySelector('button[onclick="generateContent()"]');
-        if (btn) btn.classList.remove("loading");
-        output.classList.remove("loading");
-        updateLight("blueLight", "");
+        const output = document.getElementById("outputStream");
         const grokInput = document.getElementById("grokInput");
+        if (btn) btn.classList.remove("loading");
+        if (output) output.classList.remove("loading");
+        updateLight("blueLight", "");
         if (grokInput) delete grokInput.dataset.processing;
       }
     }
@@ -937,7 +908,12 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
       try {
         console.log("Button: Heal clicked");
         const healInput = document.getElementById("healInput");
-        if (healInput?.dataset.processing) return;
+        if (!healInput) {
+          console.log("Heal Error: #healInput not found");
+          showToast("⚠️ Heal input element missing.");
+          return;
+        }
+        if (healInput.dataset.processing) return;
         healInput.dataset.processing = "true";
         const code = healInput.value || "<!-- VOID CODE -->";
         modeStates.heal.input = code;
@@ -954,27 +930,40 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
         whisper("🩹 Spirits healing code wounds...");
 
         output.innerHTML = "";
-        const prompt = `Fix and optimize this code for Bolu's Shrine: ${code}. Add animations (e.g., CSS transitions). Output as markdown code block with explanation.`;
+        const prompt = `
+Fix and optimize this code for Bolu's Shrine: \`\`\`html\n${code}\n\`\`\`
+- Add animations (e.g., CSS transitions).
+- Ensure mobile responsiveness (1080x2280).
+- Include SEO meta tags.
+Output as markdown with:
+- **Explanation**: Issues found and fixes applied.
+- **Fixed Code**: Full corrected code in a markdown code block.
+        `;
         const healed = await withRetry(() => puter.ai.chat(prompt, { 
           model: "gpt-4o-mini", 
           temperature: 0.2
         }));
-        output.innerHTML = marked.parse(healed);
+        output.innerHTML = marked.parse(healed || `## Fallback Heal\nNo response from ${selectedAI}. Original code:\n\`\`\`html\n${code}\n\`\`\``);
         document.getElementById("healedCode").value = healed;
         modeStates.heal.output = healed;
         localStorage.setItem("lastHealed", healed);
         whisper("🩹 Code reborn.");
         eventBus.emit("updateVault", { data: healed, mode: "heal" });
+        console.log("Heal: Code healed successfully");
       } catch (e) {
         console.log(`Heal Error: ${e.message}`);
-        output.innerHTML = marked.parse(localStorage.getItem("lastHealed") || `## Fallback Heal\n\`\`\`html\n${code}\n\`\`\`\nBasic fixes applied offline.`);
-        showToast("⚠️ Heal failed. Using original code.");
+        const output = document.getElementById("outputStream");
+        if (output) {
+          output.innerHTML = marked.parse(localStorage.getItem("lastHealed") || `## Error\nFailed to heal code: ${e.message}.\n\`\`\`html\n${code}\n\`\`\``);
+          showToast("⚠️ Heal failed. Using original code.");
+        }
       } finally {
         const btn = document.querySelector('button[onclick="dynamicHeal()"]');
-        if (btn) btn.classList.remove("loading");
-        output.classList.remove("loading");
-        updateLight("redLight", "");
+        const output = document.getElementById("outputStream");
         const healInput = document.getElementById("healInput");
+        if (btn) btn.classList.remove("loading");
+        if (output) output.classList.remove("loading");
+        updateLight("redLight", "");
         if (healInput) delete healInput.dataset.processing;
       }
     }
@@ -984,11 +973,13 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
         console.log("Button: Optimize clicked");
         const output = document.getElementById("outputStream");
         if (!output || !output.textContent) {
+          console.log("Optimize Error: #outputStream empty or not found");
           showToast("⚠️ No output to optimize!");
           return;
         }
         const btn = document.querySelector('button[onclick="optimizeOutput()"]');
         if (!btn) {
+          console.log("Optimize Error: Button not found");
           showToast("⚠️ Optimize button missing.");
           return;
         }
@@ -997,23 +988,34 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
         updateLight("greenLight", "pulse");
         whisper("🔍 Optimizing code for SEO and mobile...");
 
-        const prompt = `Analyze this code for SEO and mobile responsiveness: ${output.textContent}. Suggest fixes (e.g., meta tags, responsive CSS, image alt text) in markdown with diff view.`;
+        const prompt = `
+Analyze this code for SEO and mobile responsiveness: \`\`\`html\n${output.textContent}\n\`\`\`
+Suggest fixes (e.g., meta tags, responsive CSS, image alt text) in markdown with:
+- **Issues Found**: List problems.
+- **Suggested Fixes**: Detailed solutions.
+- **Optimized Code**: Full corrected code in a markdown code block.
+        `;
         const optimized = await withRetry(() => puter.ai.chat(prompt, { 
           model: "gpt-4o-mini", 
           temperature: 0.3
         }));
-        output.innerHTML = marked.parse(optimized);
+        output.innerHTML = marked.parse(optimized || `## Fallback Optimization\nNo response from ${selectedAI}. Original content preserved.`);
         modeStates[currentMode].output = optimized;
         localStorage.setItem("lastOptimized", optimized);
         whisper("🔍 Optimization complete.");
+        console.log("Optimize: Output optimized successfully");
       } catch (e) {
         console.log(`Optimize Error: ${e.message}`);
-        output.innerHTML = marked.parse(localStorage.getItem("lastOptimized") || `## Fallback Optimization\nBasic responsiveness applied offline.`);
-        showToast("⚠️ Optimization failed.");
+        const output = document.getElementById("outputStream");
+        if (output) {
+          output.innerHTML = marked.parse(localStorage.getItem("lastOptimized") || `## Error\nFailed to optimize: ${e.message}. Original content preserved.`);
+          showToast("⚠️ Optimization failed.");
+        }
       } finally {
         const btn = document.querySelector('button[onclick="optimizeOutput()"]');
+        const output = document.getElementById("outputStream");
         if (btn) btn.classList.remove("loading");
-        output.classList.remove("loading");
+        if (output) output.classList.remove("loading");
         updateLight("greenLight", "");
       }
     }
@@ -1023,6 +1025,7 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
         console.log("Button: Save Healed clicked");
         const code = document.getElementById("healedCode").value;
         if (!code) {
+          console.log("Save Error: No healed code");
           showToast("⚠️ No reality to forge!");
           return;
         }
@@ -1035,6 +1038,7 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
         updateLight("greenLight", "pulse");
         setTimeout(() => updateLight("greenLight", ""), 1000);
         whisper("💾 Forged reality downloaded.");
+        console.log("Save: Healed code downloaded");
       } catch (e) {
         console.log(`Save Error: ${e.message}`);
         showToast("⚠️ Save failed.");
@@ -1045,11 +1049,17 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
       try {
         console.log("Button: Quantum Ignite clicked");
         const output = document.getElementById("outputStream");
-        if (output?.dataset.processing) return;
+        if (!output) {
+          console.log("Ignite Error: #outputStream not found");
+          showToast("⚠️ Ignite output element missing.");
+          return;
+        }
+        if (output.dataset.processing) return;
         output.dataset.processing = "true";
         const btn = document.querySelector('button[onclick="quantumIgnite()"]');
-        if (!output || !btn) {
-          showToast("⚠️ Ignite elements missing.");
+        if (!btn) {
+          console.log("Ignite Error: Button not found");
+          showToast("⚠️ Ignite button missing.");
           return;
         }
         btn.classList.add("loading");
@@ -1075,32 +1085,48 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
           console.log(`Ignite: Received chunk: ${part.text.substring(0, 50)}...`);
           fullResponse += part.text;
           requestAnimationFrame(() => {
-            output.innerHTML = marked.parse(fullResponse) || "Rendering...";
-            output.scrollTop = output.scrollHeight;
+            try {
+              output.innerHTML = marked.parse(fullResponse) || "Rendering...";
+              output.scrollTop = output.scrollHeight;
+            } catch (e) {
+              console.log(`Ignite Render Error: ${e.message}`);
+              output.innerHTML = `<pre>Error rendering response: ${e.message}</pre>`;
+            }
           });
         }
         if (!fullResponse) {
           console.log("Ignite: No response received");
-          fullResponse = localStorage.getItem("lastIgnite") || `## Fallback Ignite\n<button onclick='alert("Bolu's Sovereign Will!")' style='background: #00d4ff; color: #f3f4f6; padding: 10px;'>CHAOS BUTTON</button>`;
+          fullResponse = localStorage.getItem("lastIgnite") || `
+## Fallback Ignite
+\`\`\`html
+<button onclick='alert("Bolu's Sovereign Will!")' style='background: #00d4ff; color: #f3f4f6; padding: 10px; border: none; border-radius: 4px; transition: transform 0.2s;'>CHAOS BUTTON</button>
+\`\`\`
+No response from ${selectedAI}. Try again.
+          `;
           output.innerHTML = marked.parse(fullResponse);
         }
         modeStates.ignite.output = fullResponse;
         localStorage.setItem("lastIgnite", fullResponse);
         whisper("💥 Reality forged.");
         eventBus.emit("updateVault", { data: fullResponse, mode: "ignite" });
+        console.log("Ignite: Reality forged successfully");
       } catch (e) {
         console.log(`Ignite Error: ${e.message}`);
-        output.innerHTML = marked.parse(localStorage.getItem("lastIgnite") || `## Error\nFailed to ignite. Try again.`);
-        showToast("⚠️ Ignite failed.");
+        const output = document.getElementById("outputStream");
+        if (output) {
+          output.innerHTML = marked.parse(localStorage.getItem("lastIgnite") || `## Error\nFailed to ignite: ${e.message}. Try again.`);
+          showToast("⚠️ Ignite failed.");
+        }
       } finally {
         setTimeout(() => {
           document.body.style.backgroundColor = "#1e1e2e";
         }, 300);
         const btn = document.querySelector('button[onclick="quantumIgnite()"]');
+        const output = document.getElementById("outputStream");
         if (btn) btn.classList.remove("loading");
-        output.classList.remove("loading");
+        if (output) output.classList.remove("loading");
         updateLight("greenLight", "");
-        delete output.dataset.processing;
+        if (output) delete output.dataset.processing;
       }
     }
 
@@ -1112,7 +1138,11 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
           const command = event.results[0][0].transcript.toLowerCase();
           whisper(`🎙️ Bolu's Edict: ${command}`);
           const grokInput = document.getElementById("grokInput");
-          if (!grokInput) return;
+          if (!grokInput) {
+            console.log("Voice Error: #grokInput not found");
+            showToast("⚠️ Input element missing.");
+            return;
+          }
           grokInput.value = command;
           modeStates.swarm.input = command;
           if (command.includes("plan site")) {
@@ -1161,6 +1191,7 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
       console.log("Button: Stats clicked (via mode)");
       const output = document.getElementById("outputStream");
       if (!output) {
+        console.log("Stats Error: #outputStream not found");
         showToast("⚠️ Stats display failed.");
         return;
       }
@@ -1197,10 +1228,17 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
     };
 
     eventBus.on("updateVault", ({ data, mode }) => {
-      if (!db) return;
-      const transaction = db.transaction(["constructs"], "readwrite");
-      const store = transaction.objectStore("constructs");
-      store.add({ data, mode, timestamp: Date.now() });
+      if (!db) {
+        console.log("Vault Error: IndexedDB not initialized");
+        return;
+      }
+      try {
+        const transaction = db.transaction(["constructs"], "readwrite");
+        const store = transaction.objectStore("constructs");
+        store.add({ data, mode, timestamp: Date.now() });
+      } catch (e) {
+        console.log(`Vault Error: ${e.message}`);
+      }
     });
 
     document.addEventListener("keydown", (e) => {
@@ -1230,10 +1268,11 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
       loadLogos();
       loadSession();
       whisper("🪐 SOVEREIGN NEXUS AWAKENED. Forge your empire, Bolu!");
+      console.log("Init: Shrine initialized successfully");
     } catch (e) {
       console.log(`Init Error: ${e.message}`);
       showToast("⚠️ Shrine initialization failed. Reload to retry.");
     }
   </script>
 </body>
-  </html>
+</html>
