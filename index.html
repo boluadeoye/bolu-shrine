@@ -191,25 +191,105 @@
         const ignitionBtn = document.getElementById('ignitionButton');
         if (ignitionBtn) {
           ignitionBtn.addEventListener('click', () => {
-            this.whisper("🌑 Silent detonation initiated. Consuming old reality...", "system");
-            ignitionBtn.textContent = "💥 DETONATING...";
-            ignitionBtn.disabled = true;
+  window.spirit.whisper("🌑 DETONATION SEQUENCE INITIATED. OLD REALITY DYING.", "system");
+  ignitionBtn.textContent = "💥 DETONATING...";
+  ignitionBtn.disabled = true;
 
-            // Visual feedback only
-            document.querySelectorAll('.light').forEach(light => {
-              light.style.animation = "pulse 0.2s infinite";
-            });
+  // Spawn silent particles
+  spawnSilentParticles();
 
-            setTimeout(() => {
-              document.querySelectorAll('.light').forEach(light => {
-                light.style.animation = "pulse 2s infinite ease-in-out";
-              });
-              ignitionBtn.textContent = "💥 IGNITE TEMPLE (SILENT)";
-              ignitionBtn.disabled = false;
-              this.whisper("🌅 Rebirth complete. New reality forged in silence, Bolu.", "system");
-            }, 3000);
-          });
-        }
+  // Screen burn effect
+  const burnOverlay = document.createElement('div');
+  burnOverlay.style.position = 'fixed';
+  burnOverlay.style.top = '0';
+  burnOverlay.style.left = '0';
+  burnOverlay.style.width = '100%';
+  burnOverlay.style.height = '100%';
+  burnOverlay.style.background = 'radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.8) 100%)';
+  burnOverlay.style.pointerEvents = 'none';
+  burnOverlay.style.zIndex = '9998';
+  burnOverlay.style.opacity = '0';
+  burnOverlay.style.transition = 'opacity 1s';
+  document.body.appendChild(burnOverlay);
+
+  burnOverlay.style.opacity = '1';
+
+  // Rebirth after 3s
+  setTimeout(() => {
+    burnOverlay.style.opacity = '0';
+    ignitionBtn.textContent = "💥 IGNITE TEMPLE (SILENT)";
+    ignitionBtn.disabled = false;
+    window.spirit.whisper("🌅 REBIRTH COMPLETE. NEW REALITY FORGED IN SILENCE.", "system");
+  }, 3000);
+});
+
+// Silent particle system
+function spawnSilentParticles() {
+  let canvas = document.getElementById('silentCanvas');
+  if (!canvas) {
+    canvas = document.createElement('canvas');
+    canvas.id = 'silentCanvas';
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = '9997';
+    document.body.appendChild(canvas);
+  }
+
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const button = document.getElementById('ignitionButton');
+  const rect = button.getBoundingClientRect();
+  const startX = rect.left + rect.width / 2;
+  const startY = rect.top + rect.height / 2;
+
+  const particles = [];
+  for (let i = 0; i < 100; i++) {
+    particles.push({
+      x: startX,
+      y: startY,
+      vx: (Math.random() - 0.5) * 12,
+      vy: (Math.random() - 0.5) * 12,
+      life: 50,
+      maxLife: 50,
+      size: Math.random() * 5 + 2
+    });
+  }
+
+  const animate = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.globalCompositeOperation = 'lighter';
+
+    let alive = false;
+    for (let p of particles) {
+      if (p.life > 0) {
+        alive = true;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+        
+        const alpha = p.life / p.maxLife;
+        ctx.fillStyle = `rgba(255, ${80 + alpha * 120}, 0, ${alpha})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    if (alive) {
+      requestAnimationFrame(animate);
+    } else {
+      canvas.remove();
+    }
+  };
+
+  animate();
+      }
 
         // Whisper log
         window.logWhisper = (text) => {
