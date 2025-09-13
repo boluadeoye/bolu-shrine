@@ -38,26 +38,13 @@
       width: 100%;
       max-width: 1080px;
       margin: 0 auto;
-      padding: 80px 20px 20px;
+      padding: 20px;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-    .header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      background: linear-gradient(to right, rgba(30, 30, 46, 0.9), rgba(0, 212, 255, 0.2));
-      backdrop-filter: blur(5px);
-      border-bottom: 2px solid #00d4ff;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 15px;
-      z-index: 1000;
+      min-height: 100vh;
+      justify-content: center;
     }
     .nexus-hud {
       position: fixed;
@@ -65,13 +52,14 @@
       left: 10px;
       display: flex;
       gap: 8px;
-      opacity: 0.5;
+      opacity: 0.8;
+      z-index: 1000;
     }
     .light {
       width: 15px;
       height: 15px;
       border-radius: 50%;
-      box-shadow: 0 0 6px #00d4ff;
+      box-shadow: 0 0 8px #00d4ff;
     }
     .light::after {
       content: attr(data-tooltip);
@@ -96,35 +84,79 @@
       0%, 100% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.2); opacity: 0.7; }
     }
-    .menu-btn {
-      background: #00d4ff;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 14px;
-      font-size: 20px;
-      cursor: pointer;
+    .search-bar {
+      width: 90%;
+      max-width: 600px;
+      padding: 12px 20px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 2px solid #00d4ff;
+      border-radius: 24px;
+      color: #f3f4f6;
+      font-family: 'Inter';
+      font-size: 18px;
+      margin: 20px 0;
+      box-shadow: 0 2px 6px rgba(0, 212, 255, 0.3);
+    }
+    .search-bar:focus {
+      border-color: #ff4d94;
       box-shadow: 0 0 8px #00d4ff;
     }
-    .menu {
-      position: fixed;
-      top: 70px;
-      right: 15px;
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 10px 0;
+    }
+    .grok-btn, .more-btn {
+      background: #00d4ff;
+      color: #f3f4f6;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .more-btn {
+      background: #ff4d94;
+    }
+    .grok-btn:hover, .more-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #00d4ff;
+    }
+    .grok-btn.loading {
+      background: #00d4ff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23f3f4f6" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>') no-repeat center;
+      background-size: 24px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .more-panel {
       background: rgba(30, 30, 46, 0.9);
-      border-radius: 8px;
-      padding: 10px;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 95%;
+      width: 100%;
+      margin: 20px 0;
+      backdrop-filter: blur(5px);
       display: none;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .more-panel.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .menu {
+      display: flex;
       flex-direction: column;
       gap: 8px;
-      backdrop-filter: blur(5px);
-      z-index: 1001;
-      transform: translateY(-20px);
-      transition: transform 0.3s ease, opacity 0.3s ease;
-      opacity: 0;
-    }
-    .menu.active {
-      display: flex;
-      transform: translateY(0);
-      opacity: 1;
+      margin-bottom: 20px;
     }
     .menu button {
       background: #00d4ff;
@@ -146,25 +178,24 @@
       color: #f3f4f6;
       font-size: 16px;
       padding: 10px;
-      margin: 0 10px;
-      flex-grow: 1;
+      width: 100%;
+      max-width: 200px;
+      margin-bottom: 20px;
     }
     .ai-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
-      margin: 20px 0;
+      gap: 20px;
       padding: 20px;
       background: rgba(30, 30, 46, 0.7);
       border-radius: 16px;
-      backdrop-filter: blur(5px);
       width: 100%;
       max-width: 320px;
       min-height: 150px;
     }
     .ai-logo {
-      width: 64px;
-      height: 64px;
+      width: 48px;
+      height: 48px;
       cursor: pointer;
       transition: transform 0.3s, filter 0.3s;
       filter: drop-shadow(0 0 5px #00d4ff);
@@ -179,7 +210,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: bold;
       border-radius: 12px;
       color: #f3f4f6;
@@ -192,11 +223,13 @@
       width: 100%;
       margin: 20px 0;
       backdrop-filter: blur(5px);
+      display: none;
       opacity: 0;
       transform: translateY(20px);
       transition: opacity 0.3s ease, transform 0.3s ease;
     }
     .panel.active {
+      display: block;
       opacity: 1;
       transform: translateY(0);
     }
@@ -208,7 +241,6 @@
       -webkit-background-clip: text;
       color: transparent;
     }
-    .panel input,
     .panel textarea {
       width: 100%;
       padding: 12px;
@@ -220,7 +252,6 @@
       font-size: 18px;
       margin: 10px 0;
     }
-    .panel input:focus,
     .panel textarea:focus {
       border-color: #ff4d94;
       box-shadow: 0 0 8px #00d4ff;
@@ -244,10 +275,6 @@
       background: #00d4ff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23f3f4f6" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>') no-repeat center;
       background-size: 24px;
       animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
     }
     .output-stream {
       color: #f3f4f6;
@@ -294,9 +321,6 @@
       transform: translateY(0);
     }
     .mic-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
       background: #00d4ff;
       border-radius: 50%;
       width: 64px;
@@ -310,46 +334,52 @@
     .mic-btn:hover {
       transform: scale(1.1);
     }
-    .grok-btn { background: #00d4ff !important; }
     .heal-btn-panel { background: #ff4d94 !important; }
     .ignite-btn { background: #ff6b6b !important; }
+    @media (max-width: 1080px) {
+      .button-row { flex-direction: column; align-items: center; }
+      .search-bar { width: 95%; }
+    }
   </style>
 </head>
 <body>
   <div class="stars"></div>
-  <div class="header">
-    <select class="ai-select" id="aiSelect">
-      <option value="grok">Grok</option>
-      <option value="chatgpt">ChatGPT</option>
-      <option value="copilot">Copilot</option>
-      <option value="claude">Claude</option>
-      <option value="gemini">Gemini</option>
-      <option value="perplexity">Perplexity</option>
-    </select>
-    <button class="menu-btn" onclick="toggleMenu()">☰</button>
-    <div class="menu" id="menu">
-      <button onclick="setMode('swarm')">Nexus Swarm</button>
-      <button onclick="setMode('heal')">Healing Engine</button>
-      <button onclick="setMode('ignite')">Ignition Altar</button>
-      <button onclick="setMode('vault')">Quantum Vault</button>
-      <button onclick="setMode('stats')">Performance Stats</button>
-      <button class="close-menu" onclick="toggleMenu()">✖ Close</button>
-    </div>
-  </div>
   <div class="nexus-container">
     <div class="nexus-hud">
       <div class="light blue pulse" data-tooltip="Bolu, Spirits Streaming" role="status" id="blueLight"></div>
       <div class="light green" data-tooltip="Bolu, Constructs Forged" role="status" id="greenLight"></div>
       <div class="light red" data-tooltip="Bolu, Healing Active" role="status" id="redLight"></div>
     </div>
-    <div class="ai-grid" id="aiGrid"></div>
-    <div class="panel active" id="mainPanel">
+    <textarea class="search-bar" id="grokInput" placeholder="Ask anything or command... e.g., 'Plan a neon e-com for streetwear'"></textarea>
+    <div class="button-row">
+      <button class="grok-btn" onclick="dynamicSwarm()">⚡ SUMMON NEXUS</button>
+      <button class="grok-btn" onclick="planSite()">🗺️ AI SITE PLANNER</button>
+      <button class="grok-btn" onclick="generateContent()">📸 GENERATE CONTENT</button>
+      <button class="more-btn" onclick="toggleMore()">MORE</button>
+    </div>
+    <div class="more-panel" id="morePanel">
+      <select class="ai-select" id="aiSelect">
+        <option value="grok">Grok</option>
+        <option value="chatgpt">ChatGPT</option>
+        <option value="copilot">Copilot</option>
+        <option value="claude">Claude</option>
+        <option value="gemini">Gemini</option>
+        <option value="perplexity">Perplexity</option>
+      </select>
+      <div class="ai-grid" id="aiGrid"></div>
+      <div class="menu" id="menu">
+        <button onclick="setMode('swarm')">Nexus Swarm</button>
+        <button onclick="setMode('heal')">Healing Engine</button>
+        <button onclick="setMode('ignite')">Ignition Altar</button>
+        <button onclick="setMode('vault')">Quantum Vault</button>
+        <button onclick="setMode('stats')">Performance Stats</button>
+        <button class="close-menu" onclick="toggleMore()">✖ Close</button>
+      </div>
+      <button class="mic-btn" onclick="startVoice()" title="Bolu, Speak Your Will">🎙️</button>
+    </div>
+    <div class="panel" id="mainPanel">
       <h2 id="panelTitle">👽 NEXUS SPIRIT SWARM</h2>
       <div id="panelContent">
-        <textarea id="grokInput" placeholder="Ask anything or command... e.g., 'Plan a neon e-com for streetwear' or 'Explain quantum physics'"></textarea>
-        <button class="grok-btn" onclick="dynamicSwarm()">⚡ SUMMON NEXUS</button>
-        <button class="grok-btn" onclick="planSite()">🗺️ AI SITE PLANNER</button>
-        <button class="grok-btn" onclick="generateContent()">📸 GENERATE CONTENT</button>
         <div id="outputStream" class="output-stream">
           <button class="copy-btn" onclick="copyOutput()">Copy</button>
           <button class="share-btn" onclick="shareOutput()">Share</button>
@@ -359,7 +389,6 @@
       </div>
     </div>
     <div class="toast" id="toast"></div>
-    <button class="mic-btn" onclick="startVoice()" title="Bolu, Speak Your Will">🎙️</button>
   </div>
   <textarea id="healedCode" style="display:none;"></textarea>
 
@@ -381,15 +410,8 @@
     // Custom Event Bus
     const eventBus = {
       listeners: {},
-      on(event, callback) {
-        this.listeners[event] = this.listeners[event] || [];
-        this.listeners[event].push(callback);
-      },
-      emit(event, data) {
-        if (this.listeners[event]) {
-          this.listeners[event].forEach(callback => callback(data));
-        }
-      }
+      on(event, callback) { this.listeners[event] = this.listeners[event] || []; this.listeners[event].push(callback); },
+      emit(event, data) { if (this.listeners[event]) this.listeners[event].forEach(callback => callback(data)); }
     };
 
     // Toast Notification
@@ -400,7 +422,7 @@
         toast.classList.add("active");
         setTimeout(() => toast.classList.remove("active"), 3000);
       } else {
-        console.log(`Toast Error: Element #toast not found`);
+        console.log(`Toast Error: #toast not found`);
       }
     }
 
@@ -412,7 +434,7 @@
         showToast("⚠️ AI grid missing. Reloading may help.");
         return;
       }
-      grid.innerHTML = ""; // Clear grid to prevent duplicates
+      grid.innerHTML = "";
       aiLogos.forEach((ai) => {
         const img = document.createElement("img");
         img.className = "ai-logo";
@@ -431,7 +453,6 @@
         img.onclick = () => selectAI(ai.name);
         grid.appendChild(img);
       });
-      showToast("🌌 AI spirits aligned in Nexus grid.");
       console.log("Logos: AI grid populated successfully");
     }
 
@@ -464,9 +485,7 @@
       const light = document.getElementById(lightId);
       if (light) {
         light.classList[state === "pulse" ? "add" : "remove"]("pulse");
-        if (state === "pulse" && "vibrate" in navigator) {
-          navigator.vibrate(50);
-        }
+        if (state === "pulse" && "vibrate" in navigator) navigator.vibrate(50);
       } else {
         console.log(`Light Error: #${lightId} not found`);
       }
@@ -477,11 +496,8 @@
       if (saved) {
         modeStates[currentMode].output = saved;
         const outputStream = document.getElementById("outputStream");
-        if (outputStream) {
-          outputStream.innerHTML = saved;
-        } else {
-          console.log("Session Error: #outputStream not found");
-        }
+        if (outputStream) outputStream.innerHTML = saved;
+        else console.log("Session Error: #outputStream not found");
       }
       const savedStats = localStorage.getItem("stats");
       if (savedStats) stats = JSON.parse(savedStats);
@@ -490,25 +506,20 @@
 
     function selectAI(ai) {
       try {
+        console.log(`Button: Select AI ${ai}`);
         selectedAI = ai;
         const aiSelect = document.getElementById("aiSelect");
-        if (aiSelect) {
-          aiSelect.value = ai;
-        } else {
-          console.log("AI Select Error: #aiSelect not found");
-        }
+        if (aiSelect) aiSelect.value = ai;
+        else console.log("AI Select Error: #aiSelect not found");
         whisper(`🌌 Spirit ${ai.toUpperCase()} summoned by Bolu.`);
         stats.aiUsage[ai]++;
         localStorage.setItem("stats", JSON.stringify(stats));
         updateLight("blueLight", "pulse");
         setTimeout(() => updateLight("blueLight", ""), 1000);
         document.querySelectorAll(".ai-logo").forEach((logo) => {
-          if (logo) {
-            logo.classList[logo.getAttribute("data-name") === ai ? "add" : "remove"]("active");
-          }
+          if (logo) logo.classList[logo.getAttribute("data-name") === ai ? "add" : "remove"]("active");
         });
         eventBus.emit("aiSelected", ai);
-        setMode(currentMode);
         console.log(`AI Select: ${ai} selected`);
       } catch (e) {
         console.log(`AI Select Error: ${e.message}`);
@@ -516,42 +527,44 @@
       }
     }
 
-    function toggleMenu() {
+    function toggleMore() {
       try {
-        const menu = document.getElementById("menu");
-        if (menu) {
-          menu.classList.toggle("active");
-          console.log(`Menu: Toggled to ${menu.classList.contains("active") ? "visible" : "hidden"}`);
+        console.log("Button: Toggle More clicked");
+        const morePanel = document.getElementById("morePanel");
+        if (morePanel) {
+          morePanel.classList.toggle("active");
+          console.log(`More Panel: Toggled to ${morePanel.classList.contains("active") ? "visible" : "hidden"}`);
         } else {
-          console.log("Menu Error: #menu not found");
-          showToast("⚠️ Menu not found. Reloading may help.");
+          console.log("More Error: #morePanel not found");
+          showToast("⚠️ More panel not found. Reloading may help.");
         }
       } catch (e) {
-        console.log(`Menu Toggle Error: ${e.message}`);
-        showToast("⚠️ Menu toggle failed. Check console.");
+        console.log(`More Toggle Error: ${e.message}`);
+        showToast("⚠️ More toggle failed. Check console.");
       }
     }
 
     function setMode(mode) {
       try {
+        console.log(`Button: Set Mode ${mode}`);
         currentMode = mode;
+        const mainPanel = document.getElementById("mainPanel");
         const panelTitle = document.getElementById("panelTitle");
         const panelContent = document.getElementById("panelContent");
-        if (!panelTitle || !panelContent) {
-          console.log("Mode Error: #panelTitle or #panelContent not found");
+        const morePanel = document.getElementById("morePanel");
+        if (!mainPanel || !panelTitle || !panelContent) {
+          console.log("Mode Error: #mainPanel, #panelTitle, or #panelContent not found");
           showToast("⚠️ Panel elements missing. Reloading may help.");
           return;
         }
+        if (morePanel) morePanel.classList.remove("active");
+        mainPanel.classList.add("active");
         panelContent.style.opacity = "0";
         panelContent.style.transform = "translateY(20px)";
         setTimeout(() => {
           if (mode === "swarm") {
             panelTitle.textContent = "👽 NEXUS SPIRIT SWARM";
             panelContent.innerHTML = `
-              <textarea id="grokInput" placeholder="Ask anything or command... e.g., 'Plan a neon e-com for streetwear' or 'Explain quantum physics'"></textarea>
-              <button class="grok-btn" onclick="dynamicSwarm()">⚡ SUMMON NEXUS</button>
-              <button class="grok-btn" onclick="planSite()">🗺️ AI SITE PLANNER</button>
-              <button class="grok-btn" onclick="generateContent()">📸 GENERATE CONTENT</button>
               <div id="outputStream" class="output-stream">
                 <button class="copy-btn" onclick="copyOutput()">Copy</button>
                 <button class="share-btn" onclick="shareOutput()">Share</button>
@@ -559,8 +572,6 @@
                 <button class="heal-btn" onclick="importToHeal()">🩹 IMPORT TO HEAL</button>
               </div>
             `;
-            const grokInput = document.getElementById("grokInput");
-            if (grokInput) grokInput.value = modeStates.swarm.input;
             const outputStream = document.getElementById("outputStream");
             if (outputStream) outputStream.innerHTML = modeStates.swarm.output;
           } else if (mode === "heal") {
@@ -640,7 +651,6 @@
           }
           panelContent.style.opacity = "1";
           panelContent.style.transform = "translateY(0)";
-          toggleMenu();
           whisper(`🪐 Mode switched to ${mode.toUpperCase()}.`);
           eventBus.emit("modeChanged", mode);
           console.log(`Mode: Switched to ${mode}`);
@@ -653,6 +663,7 @@
 
     function copyOutput() {
       try {
+        console.log("Button: Copy clicked");
         const output = document.getElementById("outputStream");
         if (!output) {
           console.log("Copy Error: #outputStream not found");
@@ -672,6 +683,7 @@
 
     async function shareOutput() {
       try {
+        console.log("Button: Share clicked");
         const output = document.getElementById("outputStream");
         if (!output || !output.textContent) {
           console.log("Share Error: #outputStream empty or not found");
@@ -696,6 +708,7 @@
 
     async function importToHeal() {
       try {
+        console.log("Button: Import to Heal clicked");
         const output = document.getElementById("outputStream");
         if (!output || !output.textContent) {
           console.log("Import Error: #outputStream empty or not found");
@@ -735,6 +748,7 @@
 
     async function planSite() {
       try {
+        console.log("Button: Plan Site clicked");
         const grokInput = document.getElementById("grokInput");
         if (grokInput?.dataset.processing) return;
         grokInput.dataset.processing = "true";
@@ -816,6 +830,7 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
 
     async function generateContent() {
       try {
+        console.log("Button: Generate Content clicked");
         const grokInput = document.getElementById("grokInput");
         if (grokInput?.dataset.processing) return;
         grokInput.dataset.processing = "true";
@@ -872,6 +887,7 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
 
     async function dynamicSwarm() {
       try {
+        console.log("Button: Summon Nexus clicked");
         const grokInput = document.getElementById("grokInput");
         if (grokInput?.dataset.processing) return;
         grokInput.dataset.processing = "true";
@@ -893,14 +909,10 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
         const inputLower = input.toLowerCase();
         if (inputLower.includes("explain") || inputLower.includes("what is") || inputLower.includes("how does")) {
           prompt = `As ${selectedAI}, provide a clear, concise explanation for: "${input}". Format as markdown with bullet points or code blocks if relevant.`;
-          if (selectedAI === "perplexity" || selectedAI === "claude") {
-            prompt += " Prioritize factual accuracy and depth.";
-          }
+          if (selectedAI === "perplexity" || selectedAI === "claude") prompt += " Prioritize factual accuracy and depth.";
         } else if (inputLower.includes("code") || inputLower.includes("build") || inputLower.includes("create")) {
           prompt = `As ${selectedAI}, generate a working code snippet for: "${input}". Include comments and dynamic animations (e.g., CSS transitions). Format as a markdown code block.`;
-          if (selectedAI === "copilot" || selectedAI === "grok") {
-            prompt += " Optimize for modern web standards.";
-          }
+          if (selectedAI === "copilot" || selectedAI === "grok") prompt += " Optimize for modern web standards.";
         } else {
           prompt = `As ${selectedAI}, respond as chaotic sovereign Bolu to: "${input}". Be creative, include code if relevant, and format as markdown.`;
         }
@@ -935,6 +947,7 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
 
     async function dynamicHeal() {
       try {
+        console.log("Button: Heal clicked");
         const healInput = document.getElementById("healInput");
         if (healInput?.dataset.processing) return;
         healInput.dataset.processing = "true";
@@ -979,6 +992,7 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
 
     async function optimizeOutput() {
       try {
+        console.log("Button: Optimize clicked");
         const output = document.getElementById("outputStream");
         if (!output || !output.textContent) {
           console.log("Optimize Error: #outputStream empty or not found");
@@ -1001,10 +1015,10 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
           temperature: 0.3
         }));
         output.innerHTML = marked.parse(optimized);
-        modeStates.ignite.output = optimized;
+        modeStates[currentMode].output = optimized;
         localStorage.setItem("lastIgnite", optimized);
         whisper("🔍 Optimization complete. Nexus vault updated.");
-        eventBus.emit("updateVault", { data: optimized, mode: "ignite" });
+        eventBus.emit("updateVault", { data: optimized, mode: currentMode });
         console.log("Optimize: Code optimized successfully");
       } catch (e) {
         console.log(`Optimize Error: ${e.message}`);
@@ -1019,6 +1033,7 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
 
     async function saveHealed() {
       try {
+        console.log("Button: Save Healed clicked");
         const code = document.getElementById("healedCode").value;
         if (!code) {
           console.log("Save Error: #healedCode empty");
@@ -1043,6 +1058,7 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
 
     async function quantumIgnite() {
       try {
+        console.log("Button: Quantum Ignite clicked");
         const output = document.getElementById("outputStream");
         if (output?.dataset.processing) return;
         output.dataset.processing = "true";
@@ -1094,6 +1110,7 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
 
     async function startVoice() {
       try {
+        console.log("Button: Voice clicked");
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.onresult = async (event) => {
           const command = event.results[0][0].transcript.toLowerCase();
@@ -1170,6 +1187,7 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
 
     function displayStats() {
       try {
+        console.log("Button: Stats clicked (via mode)");
         const output = document.getElementById("outputStream");
         if (!output) {
           console.log("Stats Error: #outputStream not found");
@@ -1269,4 +1287,4 @@ Include a markdown table visualizing the wireframe layout. End with a basic HTML
     }
   </script>
 </body>
-</html>
+    </html>
