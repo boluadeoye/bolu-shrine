@@ -6,28 +6,29 @@
   <title>Bolu's Shrine - EMERGENCY SOVEREIGN EDITION</title>
   <link rel="manifest" href="/bolu-shrine/manifest.json">
   <meta name="theme-color" content="#8b5cf6">
-  <!-- Dynamic AI Core: Free Puter.js for live GPT access -->
   <script src="https://js.puter.com/v2/"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
   <style>
     body {
       background: #0a0e17;
       color: white;
-      font-family: sans-serif;
+      font-family: 'Inter', sans-serif;
       padding: 10px;
       margin: 0;
       text-align: center;
+      overflow-x: hidden;
       transition: background-color 0.3s ease;
     }
+    canvas.stars { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.5; }
     .section {
       background: rgba(30, 41, 59, 0.8);
       border-radius: 12px;
       padding: 15px;
       margin: 15px auto;
       max-width: 95%;
-      opacity: 0;
       animation: fadeIn 0.5s ease forwards;
     }
-    @keyframes fadeIn { to { opacity: 1; } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     button {
       background: #8b5cf6;
       color: white;
@@ -39,7 +40,7 @@
       font-size: 14px;
       transition: transform 0.2s, box-shadow 0.2s;
     }
-    button:hover { transform: scale(1.05); box-shadow: 0 0 10px #8b5cf6; }
+    button:hover { transform: scale(1.05); box-shadow: 0 0 15px #8b5cf6; }
     button.loading { animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     textarea {
@@ -55,7 +56,8 @@
       margin: 10px 0;
       transition: border-color 0.3s;
     }
-    textarea:focus { border-color: #8b5cf6; box-shadow: 0 0 5px #8b5cf6; }
+    textarea:focus { border-color: #8b5cf6; box-shadow: 0 0 8px #8b5cf6; }
+    .output-stream { color: #8b5cf6; font-family: monospace; white-space: pre-wrap; padding: 10px; border-radius: 6px; background: rgba(0,0,0,0.3); }
     #whisperLog {
       background: rgba(0,0,0,0.5);
       padding: 10px;
@@ -68,151 +70,176 @@
       animation: slideIn 0.3s ease;
     }
     @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .status {
-      padding: 10px;
-      background: #1e293b;
-      border-radius: 8px;
-      margin: 10px 0;
-    }
-    .lights-container {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      padding: 10px;
-    }
+    .lights-container { display: flex; justify-content: center; gap: 20px; padding: 10px; }
     .light {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      position: relative;
-      box-shadow: 0 0 10px #8b5cf6;
+      width: 40px; height: 40px; border-radius: 50%; position: relative; box-shadow: 0 0 12px #8b5cf6;
       transition: opacity 0.3s;
     }
     .light::after {
-      content: attr(data-tooltip);
-      background: rgba(139, 92, 246, 0.3);
-      color: #fff;
-      padding: 5px;
-      font-size: 12px;
-      position: absolute;
-      top: -30px;
-      display: none;
-      z-index: 10;
+      content: attr(data-tooltip); background: rgba(139, 92, 246, 0.3); color: #fff;
+      padding: 5px; font-size: 12px; position: absolute; top: -30px; display: none;
     }
     .light:hover::after { display: block; }
-    .blue { background: #2196F3; }
-    .green { background: #4CAF50; }
-    .red { background: #F44336; }
-    .pulse { animation: pulse 1.5s infinite ease-in-out; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .blue { background: #2196F3; } .green { background: #4CAF50; } .red { background: #F44336; }
+    .pulse { animation: pulse 1.2s infinite ease-in-out; }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.1); } }
+    .ai-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 300px; margin: 20px auto; }
+    .ai-logo { width: 48px; height: 48px; cursor: pointer; transition: transform 0.3s, filter 0.3s; filter: drop-shadow(0 0 5px #8b5cf6); }
+    .ai-logo:hover { transform: scale(1.2); filter: drop-shadow(0 0 10px #8b5cf6); }
     .heal-btn { background: #10b981 !important; }
     .grok-btn { background: #ef4444 !important; }
     .ignite-btn { background: #f97316 !important; }
-    .output-stream { color: #8b5cf6; font-family: monospace; white-space: pre-wrap; }
+    .mic-btn { background: #8b5cf6; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; }
   </style>
 </head>
 <body>
-  <!-- Triad Lights: Dynamic Status Pulse -->
+  <canvas class="stars"></canvas>
+  <!-- Triad Lights & AI Logos -->
   <div class="lights-container">
-    <div class="light blue pulse" data-tooltip="Bolu, AI Spirits Streaming" role="status" id="blueLight"></div>
-    <div class="light green" data-tooltip="Bolu, Constructs Deployed" role="status" id="greenLight"></div>
+    <div class="light blue pulse" data-tooltip="Bolu, Spirits Streaming" role="status" id="blueLight"></div>
+    <div class="light green" data-tooltip="Bolu, Constructs Forged" role="status" id="greenLight"></div>
     <div class="light red" data-tooltip="Bolu, Healing Active" role="status" id="redLight"></div>
   </div>
+  <div class="ai-grid">
+    <img src="/bolu-shrine/assets/grok-logo.svg" class="ai-logo" alt="Grok" aria-label="Bolu, Summon Grok" onclick="selectAI('grok')">
+    <img src="/bolu-shrine/assets/chatgpt-logo.svg" class="ai-logo" alt="ChatGPT" aria-label="Bolu, Summon ChatGPT" onclick="selectAI('chatgpt')">
+    <img src="/bolu-shrine/assets/copilot-logo.svg" class="ai-logo" alt="Copilot" aria-label="Bolu, Summon Copilot" onclick="selectAI('copilot')">
+    <img src="/bolu-shrine/assets/claude-logo.svg" class="ai-logo" alt="Claude" aria-label="Bolu, Summon Claude" onclick="selectAI('claude')">
+    <img src="/bolu-shrine/assets/gemini-logo.svg" class="ai-logo" alt="Gemini" aria-label="Bolu, Summon Gemini" onclick="selectAI('gemini')">
+    <img src="/bolu-shrine/assets/perplexity-logo.svg" class="ai-logo" alt="Perplexity" aria-label="Bolu, Summon Perplexity" onclick="selectAI('perplexity')">
+  </div>
+  <button class="mic-btn" onclick="startVoice()" title="Bolu, Speak Your Will">🎙️</button>
 
   <div class="section">
     <h1>🪐 BOLU'S SHRINE — EMERGENCY SOVEREIGN EDITION</h1>
-    <div class="status" id="status">✅ All systems operational. Dynamic mode engaged.</div>
+    <div class="status" id="status">✅ Nexus alive. Command the spirits, Bolu.</div>
   </div>
 
-  <!-- GROK POD: Now Live AI Streaming -->
+  <!-- NEXUS SPIRIT SWARM -->
   <div class="section">
-    <h2>👽 GROK POD — LIVE CHAOS STREAM</h2>
-    <textarea id="grokInput" placeholder="Command the spirits... e.g., 'Build me a healing app for the lonely'"></textarea>
-    <button class="grok-btn" onclick="dynamicGrok()">⚡ UNLEASH SPIRITS (LIVE)</button>
+    <h2>👽 NEXUS SPIRIT SWARM — LIVE CHAOS</h2>
+    <textarea id="grokInput" placeholder="Command the spirits... e.g., 'Build a neon portfolio'"></textarea>
+    <button class="grok-btn" onclick="dynamicSwarm()">⚡ SUMMON NEXUS</button>
     <div id="grokOutput" class="output-stream"></div>
   </div>
 
-  <!-- HEALING ENGINE: AI-Powered Fixes -->
+  <!-- HEALING ENGINE -->
   <div class="section">
-    <h2>🩹 HEALING ENGINE — DYNAMIC RESURRECTION</h2>
+    <h2>🩹 HEALING ENGINE — QUANTUM RESURRECTION</h2>
     <textarea id="healInput" placeholder="Paste broken code here..."></textarea>
-    <button class="heal-btn" onclick="dynamicHeal()">🩹 HEAL WITH AI</button>
+    <button class="heal-btn" onclick="dynamicHeal()">🩹 RESURRECT WITH AI</button>
     <div id="healOutput" class="output-stream"></div>
-    <button class="heal-btn" onclick="saveHealed()" style="margin-top: 10px;">💾 DOWNLOAD HEALED REALITY</button>
+    <button class="heal-btn" onclick="saveHealed()">💾 DOWNLOAD HEALED REALITY</button>
   </div>
 
-  <!-- IGNITION ALTAR: AI-Triggered Warp -->
+  <!-- IGNITION ALTAR -->
   <div class="section">
-    <h2>💥 IGNITION ALTAR — QUANTUM DETONATION</h2>
-    <button class="ignite-btn" onclick="quantumIgnite()">💥 DETONATE & GENERATE</button>
+    <h2>💥 IGNITION ALTAR — COSMIC DETONATION</h2>
+    <button class="ignite-btn" onclick="quantumIgnite()">💥 FORGE NEW REALITY</button>
     <div id="igniteOutput" class="output-stream"></div>
   </div>
 
-  <!-- WHISPER LOG: Persistent & Reactive -->
+  <!-- QUANTUM VAULT -->
   <div class="section">
-    <h2>👁️‍🗨️ ETERNAL WHISPERS</h2>
-    <div id="whisperLog">Spirits awakening for you, Bolu. Dynamic flows engaged.</div>
+    <h2>👁️‍🗨️ QUANTUM VAULT</h2>
+    <input id="vaultSearch" type="text" placeholder="Search constructs... e.g., 'neon e-com'" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid #8b5cf6; border-radius: 6px; color: white;">
+    <div id="vaultLog" class="output-stream"></div>
   </div>
 
   <textarea id="healedCode" style="display:none;"></textarea>
 
   <script>
-    // === DYNAMIC SPIRIT CORE ===
+    // === PARTICLE STARFIELD ===
+    const canvas = document.querySelector('.stars');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    const stars = new THREE.BufferGeometry();
+    const vertices = [];
+    for (let i = 0; i < 1000; i++) {
+      vertices.push((Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100);
+    }
+    stars.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    const material = new THREE.PointsMaterial({ color: 0x8b5cf6, size: 0.1 });
+    const starField = new THREE.Points(stars, material);
+    scene.add(starField);
+    camera.position.z = 50;
+    let particleSpeed = 0.001;
+    function animate() {
+      requestAnimationFrame(animate);
+      starField.rotation.y += particleSpeed;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // === DYNAMIC CORE ===
+    let selectedAI = 'grok'; // Default AI
     function whisper(text) {
-      const log = document.getElementById('whisperLog');
+      const log = document.getElementById('vaultLog');
       const entry = `<div><strong>[${new Date().toLocaleTimeString()}]</strong> ${text}</div>`;
       log.innerHTML = entry + log.innerHTML;
-      log.scrollTop = 0; // Auto-scroll to top for new whispers
-      localStorage.setItem('whispers', log.innerHTML); // Persist
+      log.scrollTop = 0;
+      localStorage.setItem('vault', log.innerHTML);
+      particleSpeed = 0.005; // Speed up particles on action
+      setTimeout(() => particleSpeed = 0.001, 1000);
     }
 
-    function updateLight(lightId, state) { // Dynamic light control
+    function updateLight(lightId, state) {
       const light = document.getElementById(lightId);
-      if (state === 'pulse') light.classList.add('pulse');
-      else light.classList.remove('pulse');
+      light.classList[state === 'pulse' ? 'add' : 'remove']('pulse');
     }
 
-    function loadSession() { // Restore from localStorage
-      const whispers = localStorage.getItem('whispers');
-      if (whispers) document.getElementById('whisperLog').innerHTML = whispers;
+    function loadSession() {
+      const vault = localStorage.getItem('vault');
+      if (vault) document.getElementById('vaultLog').innerHTML = vault;
+      const lastGrok = localStorage.getItem('lastGrok');
+      if (lastGrok) document.getElementById('grokOutput').innerHTML = lastGrok;
+      const lastHealed = localStorage.getItem('lastHealed');
+      if (lastHealed) document.getElementById('healOutput').innerHTML = `<pre>${lastHealed}</pre>`;
     }
 
-    // === LIVE GROK POD: Streaming GPT via Puter.js ===
-    async function dynamicGrok() {
-      const input = document.getElementById('grokInput').value || "NO COMMAND ECHOED";
+    function selectAI(ai) {
+      selectedAI = ai;
+      whisper(`🌌 AI Spirit ${ai.toUpperCase()} summoned by Bolu.`);
+      document.querySelectorAll('.ai-logo').forEach(logo => logo.style.filter = logo.alt.toLowerCase() === ai ? 'drop-shadow(0 0 15px #8b5cf6)' : 'drop-shadow(0 0 5px #8b5cf6)');
+    }
+
+    // === NEXUS SPIRIT SWARM ===
+    async function dynamicSwarm() {
+      const input = document.getElementById('grokInput').value || "NO WILL SPOKEN";
       const output = document.getElementById('grokOutput');
       const btn = event.target;
-      btn.textContent = "⚡ STREAMING CHAOS...";
+      btn.textContent = "⚡ SUMMONING NEXUS...";
       btn.classList.add('loading');
       updateLight('blueLight', 'pulse');
-      whisper("👽 Spirits streaming live response...");
+      particleSpeed = 0.01;
+      whisper(`👽 Nexus summoning ${selectedAI.toUpperCase()} for: ${input}`);
 
-      output.innerHTML = ''; // Clear
+      output.innerHTML = '';
       try {
-        const response = await puter.ai.chat(`Respond as chaotic sovereign Bolu to: "${input}". Keep it dynamic and code-ready.`, { 
-          model: "gpt-4o-mini", 
-          stream: true, 
-          temperature: 0.8 // For Grok-like wit
-        });
+        const prompt = `As ${selectedAI}, respond as chaotic sovereign Bolu to: "${input}". Include dynamic code if relevant.`;
+        const response = await puter.ai.chat(prompt, { model: "gpt-4o-mini", stream: true, temperature: 0.8 });
         let fullResponse = '';
         for await (const part of response) {
           fullResponse += part?.text || '';
-          output.innerHTML = fullResponse; // Typewriter stream
-          output.scrollTop = output.scrollHeight; // Auto-scroll
+          output.innerHTML = fullResponse;
+          output.scrollTop = output.scrollHeight;
         }
-        localStorage.setItem('lastGrok', fullResponse); // Persist
-        whisper("👽 Live chaos delivered. Echo preserved.");
+        localStorage.setItem('lastGrok', fullResponse);
+        whisper(`👽 ${selectedAI.toUpperCase()} has spoken. Nexus archived.`);
       } catch (e) {
-        output.innerHTML = "⚠️ Spirits offline—fallback chaos: DEPLOY YOUR WILL, BOLU!";
-        whisper("⚠️ Network rift; using eternal echo.");
+        output.innerHTML = `⚠️ Rift in the void! Fallback: <div style="background: #8b5cf6; padding: 10px;">BOLU'S WILL: ${input}</div>`;
+        whisper(`⚠️ ${selectedAI.toUpperCase()} offline. Eternal echo activated.`);
       } finally {
-        btn.textContent = "⚡ UNLEASH SPIRITS (LIVE)";
+        btn.textContent = "⚡ SUMMON NEXUS";
         btn.classList.remove('loading');
         updateLight('blueLight', '');
+        particleSpeed = 0.001;
       }
     }
 
-    // === DYNAMIC HEALING: AI Code Resurrection ===
+    // === DYNAMIC HEALING ===
     async function dynamicHeal() {
       const code = document.getElementById('healInput').value || "<!-- VOID CODE -->";
       const output = document.getElementById('healOutput');
@@ -220,32 +247,31 @@
       btn.textContent = "🩹 RESURRECTING...";
       btn.classList.add('loading');
       updateLight('redLight', 'pulse');
-      whisper("🩹 AI spirits analyzing wounds...");
+      particleSpeed = 0.01;
+      whisper("🩹 Spirits healing code wounds...");
 
       output.innerHTML = '';
       try {
-        const prompt = `Fix and optimize this code for Bolu's Shrine: ${code}. Add dynamic features like animations. Output only the healed code.`;
+        const prompt = `Fix and optimize this code for Bolu's Shrine: ${code}. Add dynamic animations (e.g., CSS transitions). Output only the healed code with a brief explanation.`;
         const healed = await puter.ai.chat(prompt, { model: "gpt-4o-mini", temperature: 0.2 });
         output.innerHTML = `<strong>🩹 HEALED BY SPIRITS:</strong><br><pre>${healed}</pre>`;
         document.getElementById('healedCode').value = healed;
-        localStorage.setItem('lastHealed', healed); // Persist
-        whisper("🩹 Code resurrected dynamically. New life infused.");
+        localStorage.setItem('lastHealed', healed);
+        whisper("🩹 Code reborn. Nexus vault updated.");
       } catch (e) {
-        // Fallback to original logic
-        let healedCode = code;
-        // ... (your existing heal logic here for offline)
-        output.innerHTML = "🩹 FALLBACK HEAL: " + healedCode;
+        output.innerHTML = `<pre>${code}</pre><br>⚠️ Offline heal: Basic fixes applied.`;
         whisper("🩹 Offline resurrection complete.");
       } finally {
-        btn.textContent = "🩹 HEAL WITH AI";
+        btn.textContent = "🩹 RESURRECT WITH AI";
         btn.classList.remove('loading');
         updateLight('redLight', '');
+        particleSpeed = 0.001;
       }
     }
 
     function saveHealed() {
       const code = document.getElementById('healedCode').value;
-      if (!code) { alert("No healed reality to download!"); return; }
+      if (!code) { alert("No reality to forge!"); return; }
       const blob = new Blob([code], { type: 'text/html' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -254,40 +280,74 @@
       a.click();
       updateLight('greenLight', 'pulse');
       setTimeout(() => updateLight('greenLight', ''), 1000);
-      whisper("💾 Dynamic download forged. Deploy to the void.");
+      whisper("💾 Forged reality downloaded. Deploy to the cosmos, Bolu.");
     }
 
-    // === QUANTUM IGNITION: AI-Generated Build Trigger ===
+    // === QUANTUM IGNITION ===
     async function quantumIgnite() {
       const btn = event.target;
-      btn.textContent = "💥 WARPING REALITY...";
+      btn.textContent = "💥 WARPING COSMOS...";
       btn.classList.add('loading');
-      document.body.style.backgroundColor = "#ff003c"; // Flash
+      document.body.style.backgroundColor = "#ff003c";
       updateLight('greenLight', 'pulse');
-      whisper("💥 Quantum spirits generating new world...");
+      particleSpeed = 0.02;
+      whisper("💥 Nexus forging new reality...");
 
       const output = document.getElementById('igniteOutput');
       output.innerHTML = '';
       try {
-        const buildPrompt = "Generate a dynamic HTML snippet for Bolu's Shrine: A chaotic button that pulses and deploys on click.";
-        const generated = await puter.ai.chat(buildPrompt, { model: "gpt-4o-mini" });
-        output.innerHTML = `<strong>🌅 FORGED CONSTRUCT:</strong><br><pre>${generated}</pre>`;
-        localStorage.setItem('lastIgnite', generated);
-        whisper("💥 Reality warped. New construct born.");
+        const buildPrompt = `Generate a dynamic HTML/CSS/JS snippet for Bolu's Shrine: A chaotic, animated component (e.g., pulsing button or neon card) with #8b5cf6 accents.`;
+        const generated = await puter.ai.chat(buildPrompt, { model: "gpt-4o-mini", stream: true });
+        let fullResponse = '';
+        for await (const part of generated) {
+          fullResponse += part?.text || '';
+          output.innerHTML = `<strong>🌅 FORGED CONSTRUCT:</strong><br><pre>${fullResponse}</pre>`;
+          output.scrollTop = output.scrollHeight;
+        }
+        localStorage.setItem('lastIgnite', fullResponse);
+        whisper("💥 Reality forged. Nexus vault sealed.");
       } catch (e) {
-        output.innerHTML = "🌑 FALLBACK DETONATION: <button onclick='alert(\"Bolu's Will Deployed!\")'>CHAOS BUTTON</button>";
+        output.innerHTML = "🌑 FALLBACK DETONATION: <button onclick='alert(\"Bolu's Sovereign Will!\")' style='background: #8b5cf6; color: white; padding: 10px;'>CHAOS BUTTON</button>";
         whisper("💥 Warp complete via eternal flame.");
       } finally {
         setTimeout(() => { document.body.style.backgroundColor = "#0a0e17"; }, 300);
-        btn.textContent = "💥 DETONATE & GENERATE";
+        btn.textContent = "💥 FORGE NEW REALITY";
         btn.classList.remove('loading');
         updateLight('greenLight', '');
+        particleSpeed = 0.001;
       }
     }
 
-    // Initialize Dynamic Mode
+    // === VOICE RITUAL ===
+    function startVoice() {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.onresult = async (event) => {
+        const command = event.results[0][0].transcript;
+        whisper(`🎙️ Bolu's Edict: ${command}`);
+        document.getElementById('grokInput').value = command;
+        await dynamicSwarm();
+      };
+      recognition.start();
+      updateLight('blueLight', 'pulse');
+      setTimeout(() => updateLight('blueLight', ''), 5000);
+    }
+
+    // === VAULT SEARCH ===
+    document.getElementById('vaultSearch').addEventListener('input', async (e) => {
+      const query = e.target.value;
+      if (!query) return;
+      whisper(`🔍 Searching vault for: ${query}`);
+      try {
+        const result = await puter.ai.chat(`Search Bolu's Shrine vault for: ${query}. Summarize relevant constructs.`, { model: "gpt-4o-mini" });
+        document.getElementById('vaultLog').innerHTML = `<div><strong>[${new Date().toLocaleTimeString()}]</strong> ${result}</div>`;
+      } catch (e) {
+        whisper("🔍 Vault search offline. Local echo activated.");
+      }
+    });
+
+    // Initialize
     loadSession();
-    whisper("✅ SOVEREIGN DYNAMICS ACTIVATED. Spirits stream live for you, Bolu.");
+    whisper("🪐 SOVEREIGN NEXUS AWAKENED. Command your empire, Bolu.");
   </script>
 </body>
 </html>
