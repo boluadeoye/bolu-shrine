@@ -236,7 +236,7 @@
       box-shadow: 0 0 15px #8b5cf6;
     }
     .panel button.loading {
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>') no-repeat center;
+      background: #8b5cf6 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>') no-repeat center;
       background-size: 24px;
       animation: spin 1s linear infinite;
     }
@@ -339,7 +339,9 @@
       <div id="panelContent">
         <textarea id="grokInput" placeholder="Ask anything or command... e.g., 'Explain quantum physics' or 'Build a neon portfolio'"></textarea>
         <button class="grok-btn" onclick="dynamicSwarm()">⚡ SUMMON NEXUS</button>
-        <div id="outputStream" class="output-stream"></div>
+        <div id="outputStream" class="output-stream">
+          <button class="copy-btn" onclick="copyOutput()">Copy</button>
+        </div>
       </div>
     </div>
     <div class="toast" id="toast"></div>
@@ -350,15 +352,15 @@
   <script>
     window.onerror = function (msg) { console.log("Bolu Error: " + msg); };
     const aiLogos = [
-      { name: "grok", src: "/bolu-shrine/assets/grok.svg", fallback: "GROK" },
-      { name: "chatgpt", src: "/bolu-shrine/assets/chatgpt.svg", fallback: "GPT" },
-      { name: "copilot", src: "/bolu-shrine/assets/copilot.svg", fallback: "COP" },
-      { name: "claude", src: "/bolu-shrine/assets/claude.svg", fallback: "CLD" },
-      { name: "gemini", src: "/bolu-shrine/assets/gemini.svg", fallback: "GEM" },
-      { name: "perplexity", src: "/bolu-shrine/assets/perplexity.svg", fallback: "PRX" },
+      { name: "grok", src: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Grok_logo_%282023-2025%29.svg", fallback: "GROK" },
+      { name: "chatgpt", src: "https://upload.wikimedia.org/wikipedia/commons/1/1b/ChatGPT_Logo.svg", fallback: "GPT" },
+      { name: "copilot", src: "https://upload.wikimedia.org/wikipedia/commons/0/0b/GitHub_Copilot_logo.svg", fallback: "COP" },
+      { name: "claude", src: "https://upload.wikimedia.org/wikipedia/commons/2/2d/Claude_AI_symbol.svg", fallback: "CLD" },
+      { name: "gemini", src: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Google_Gemini_logo.svg", fallback: "GEM" },
+      { name: "perplexity", src: "https://upload.wikimedia.org/wikipedia/commons/3/3f/Perplexity_AI_logo.svg", fallback: "PRX" },
     ];
 
-    // Custom Event Bus
+    // Custom Event Bus for Integration
     const eventBus = {
       listeners: {},
       on(event, callback) {
@@ -393,12 +395,13 @@
           img.src = "";
           img.className = "ai-logo fallback";
           img.textContent = ai.fallback;
-          whisper(`⚠️ ${ai.name.toUpperCase()} logo lost in the void.`);
+          // Silent fallback—no error whisper to avoid spam
         };
+        img.onload = () => showToast(`${ai.name.toUpperCase()} loaded!`);
         img.onclick = () => selectAI(ai.name);
         grid.appendChild(img);
       });
-      whisper("🌌 AI spirits aligned in Nexus grid.");
+      showToast("🌌 AI spirits aligned in Nexus grid.");
     }
 
     let selectedAI = "grok";
@@ -466,36 +469,47 @@
           panelContent.innerHTML = `
             <textarea id="grokInput" placeholder="Ask anything or command... e.g., 'Explain quantum physics' or 'Build a neon portfolio'">${modeStates.swarm.input}</textarea>
             <button class="grok-btn" onclick="dynamicSwarm()">⚡ SUMMON NEXUS</button>
-            <div id="outputStream" class="output-stream">${modeStates.swarm.output}</div>
-            <button class="copy-btn" onclick="copyOutput()">Copy</button>
+            <div id="outputStream" class="output-stream">
+              <button class="copy-btn" onclick="copyOutput()">Copy</button>
+            </div>
           `;
+          document.getElementById("grokInput").value = modeStates.swarm.input;
+          document.getElementById("outputStream").innerHTML = modeStates.swarm.output;
         } else if (mode === "heal") {
           panelTitle.textContent = "🩹 HEALING ENGINE";
           panelContent.innerHTML = `
             <textarea id="healInput" placeholder="Paste broken code here...">${modeStates.heal.input}</textarea>
             <button class="heal-btn" onclick="dynamicHeal()">🩹 RESURRECT WITH AI</button>
-            <div id="outputStream" class="output-stream">${modeStates.heal.output}</div>
+            <div id="outputStream" class="output-stream">
+              <button class="copy-btn" onclick="copyOutput()">Copy</button>
+            </div>
             <button class="heal-btn" onclick="saveHealed()">💾 DOWNLOAD HEALED REALITY</button>
-            <button class="copy-btn" onclick="copyOutput()">Copy</button>
           `;
+          document.getElementById("healInput").value = modeStates.heal.input;
+          document.getElementById("outputStream").innerHTML = modeStates.heal.output;
           updateLight("redLight", "pulse");
           setTimeout(() => updateLight("redLight", ""), 1000);
         } else if (mode === "ignite") {
           panelTitle.textContent = "💥 IGNITION ALTAR";
           panelContent.innerHTML = `
             <button class="ignite-btn" onclick="quantumIgnite()">💥 FORGE NEW REALITY</button>
-            <div id="outputStream" class="output-stream">${modeStates.ignite.output}</div>
-            <button class="copy-btn" onclick="copyOutput()">Copy</button>
+            <div id="outputStream" class="output-stream">
+              <button class="copy-btn" onclick="copyOutput()">Copy</button>
+            </div>
           `;
+          document.getElementById("outputStream").innerHTML = modeStates.ignite.output;
           updateLight("greenLight", "pulse");
           setTimeout(() => updateLight("greenLight", ""), 1000);
         } else if (mode === "vault") {
           panelTitle.textContent = "👁️‍🗨️ QUANTUM VAULT";
           panelContent.innerHTML = `
             <input id="vaultSearch" type="text" placeholder="Search constructs... e.g., 'neon e-com'" value="${modeStates.vault.input}">
-            <div id="outputStream" class="output-stream">${modeStates.vault.output}</div>
-            <button class="copy-btn" onclick="copyOutput()">Copy</button>
+            <div id="outputStream" class="output-stream">
+              <button class="copy-btn" onclick="copyOutput()">Copy</button>
+            </div>
           `;
+          document.getElementById("vaultSearch").value = modeStates.vault.input;
+          document.getElementById("outputStream").innerHTML = modeStates.vault.output;
           document.getElementById("vaultSearch").addEventListener("input", async (e) => {
             const query = e.target.value;
             modeStates.vault.input = query;
@@ -521,8 +535,11 @@
 
     function copyOutput() {
       const output = document.getElementById("outputStream").textContent;
-      navigator.clipboard.writeText(output);
-      showToast("📋 Output copied to clipboard!");
+      navigator.clipboard.writeText(output).then(() => {
+        showToast("📋 Output copied to clipboard!");
+      }).catch(() => {
+        showToast("⚠️ Copy failed—try selecting text.");
+      });
     }
 
     async function dynamicSwarm() {
@@ -557,7 +574,7 @@
         let fullResponse = "";
         for await (const part of response) {
           fullResponse += part?.text || "";
-          output.innerHTML = marked.parse(fullResponse); // Requires marked.js for markdown
+          output.innerHTML = marked.parse(fullResponse);
           output.scrollTop = output.scrollHeight;
         }
         modeStates.swarm.output = fullResponse;
@@ -695,43 +712,7 @@
       setTimeout(() => updateLight("blueLight", ""), 5000);
     }
 
-    // IndexedDB Setup
-    let db;
-    const dbRequest = indexedDB.open("BoluShrine", 1);
-    dbRequest.onupgradeneeded = (event) => {
-      db = event.target.result;
-      const store = db.createObjectStore("constructs", { autoIncrement: true });
-      store.createIndex("mode", "mode", { unique: false });
-      store.createIndex("timestamp", "timestamp", { unique: false });
-    };
-    dbRequest.onsuccess = (event) => {
-      db = event.target.result;
-    };
-    eventBus.on("updateVault", ({ data, mode }) => {
-      if (!db) return;
-      const transaction = db.transaction(["constructs"], "readwrite");
-      const store = transaction.objectStore("constructs");
-      store.add({ data, mode, timestamp: Date.now() });
-    });
-
-    // Hotkeys
-    document.addEventListener("keydown", (e) => {
-      if (e.ctrlKey && e.key === "s") {
-        e.preventDefault();
-        setMode("swarm");
-      } else if (e.ctrlKey && e.key === "h") {
-        e.preventDefault();
-        setMode("heal");
-      } else if (e.ctrlKey && e.key === "i") {
-        e.preventDefault();
-        setMode("ignite");
-      } else if (e.ctrlKey && e.key === "v") {
-        e.preventDefault();
-        setMode("vault");
-      }
-    });
-
-    // Load marked.js for markdown rendering
+    // Load marked.js for markdown
     const script = document.createElement("script");
     script.src = "https://cdn.jsdelivr.net/npm/marked/marked.min.js";
     document.head.appendChild(script);
