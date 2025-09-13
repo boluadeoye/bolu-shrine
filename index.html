@@ -263,7 +263,84 @@
 function summonGrok() {
   const prompt = document.getElementById('grokPrompt').value || "NO PROMPT GIVEN";
   const grokLog = document.getElementById('grokLog');
-  
+  // === HEALING ENGINE - SILENT RESURRECTION ===
+function healCode() {
+  const code = document.getElementById('brokenCode').value;
+  if (!code.trim()) {
+    window.spirit.whisper("⚠️ Paste some broken code first, Bolu.", "system");
+    return;
+  }
+
+  window.spirit.whisper("🩹 Analyzing sins... preparing resurrection...", "system");
+
+  const report = {
+    errors: [],
+    fixes: [],
+    healedCode: code
+  };
+
+  // Simulate healing
+  if (!code.includes('<!DOCTYPE html>')) {
+    report.errors.push("Missing <!DOCTYPE html>");
+    report.fixes.push("Added <!DOCTYPE html>");
+    report.healedCode = '<!DOCTYPE html>\n' + report.healedCode;
+  }
+
+  if (!code.includes('viewport')) {
+    report.errors.push("No mobile viewport");
+    report.fixes.push("Added viewport meta tag");
+    report.healedCode = report.healedCode.replace(
+      '</head>',
+      '<meta name="viewport" content="width=device-width, initial-scale=1">\n</head>'
+    );
+  }
+
+  if (code.includes('!important')) {
+    report.errors.push("Found !important — consider alternatives");
+    report.fixes.push("Commented out !important as warning");
+    report.healedCode = report.healedCode.replace(/!important/g, '/* !important */');
+  }
+
+  if (code.match(/<img[^>]*>/g) && !code.includes('alt=')) {
+    report.errors.push("Images missing alt text");
+    report.fixes.push("Added alt='mystic-sigil' to images");
+    report.healedCode = report.healedCode.replace(/<img([^>]*)>/g, '<img$1 alt="mystic-sigil">');
+  }
+
+  // Show report
+  setTimeout(() => {
+    const reportDiv = document.getElementById('healingReport');
+    let html = `<h4>🩹 AUTOPSY REPORT</h4>`;
+    html += `<p><strong>Errors Found:</strong> ${report.errors.length}</p>`;
+    html += `<ul>${report.errors.map(e => `<li>🔴 ${e}</li>`).join('')}</ul>`;
+    html += `<p><strong>Fixes Applied:</strong> ${report.fixes.length}</p>`;
+    html += `<ul>${report.fixes.map(f => `<li>🟢 ${f}</li>`).join('')}</ul>`;
+    html += `<p><strong>Healed Code:</strong></p>`;
+    html += `<textarea id="healedCodeOutput" style="width: 100%; height: 150px; background: black; color: lime; font-family: monospace; padding: 10px; border-radius: 8px;">${report.healedCode}</textarea>`;
+    html += `<button onclick="saveHealedCode()" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 15px; cursor: pointer;">💾 SAVE HEALED CODE</button>`;
+
+    reportDiv.innerHTML = html;
+    reportDiv.style.display = 'block';
+    reportDiv.scrollIntoView({ behavior: 'smooth' });
+
+    window.spirit.whisper("✅ Healing complete. Sins forgiven. Code resurrected.", "spirit");
+    document.querySelector('.light.green').style.animation = "pulse 0.3s infinite";
+    setTimeout(() => {
+      document.querySelector('.light.green').style.animation = "pulse 2s infinite ease-in-out";
+    }, 1000);
+  }, 1000);
+}
+
+function saveHealedCode() {
+  const healedCode = document.getElementById('healedCodeOutput').value;
+  const blob = new Blob([healedCode], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'healed-reality.html';
+  a.click();
+  window.spirit.whisper("💾 Healed code saved to your device, Architect.", "system");
+}
   // Add user prompt to log
   const userEntry = document.createElement('div');
   userEntry.innerHTML = `<strong>🗣️ You (${new Date().toLocaleTimeString()}):</strong> ${prompt}`;
