@@ -18,6 +18,7 @@
       margin: 0;
       overflow-y: auto;
       min-height: 100vh;
+      overscroll-behavior: none;
     }
     .stars {
       position: fixed;
@@ -159,6 +160,7 @@
       backdrop-filter: blur(5px);
       width: 100%;
       max-width: 320px;
+      min-height: 150px;
     }
     .ai-logo {
       width: 64px;
@@ -308,8 +310,8 @@
     .mic-btn:hover {
       transform: scale(1.1);
     }
-    .heal-btn { background: #ff4d94 !important; }
     .grok-btn { background: #00d4ff !important; }
+    .heal-btn-panel { background: #ff4d94 !important; }
     .ignite-btn { background: #ff6b6b !important; }
   </style>
 </head>
@@ -362,44 +364,18 @@
   <textarea id="healedCode" style="display:none;"></textarea>
 
   <script>
-    window.onerror = function (msg, url, line) { console.log(`Bolu Error: ${msg} at ${url}:${line}`); };
+    window.onerror = function (msg, url, line) {
+      console.log(`Bolu Error: ${msg} at ${url}:${line}`);
+      showToast(`⚠️ Error detected. Check console and reload.`);
+    };
+
     const aiLogos = [
-      { 
-        name: "grok", 
-        src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-x.svg?v=1", 
-        fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv2000/svg" width="64" height="64"><text x="50%" y="50%" font-size="18" fill="#f3f4f6" text-anchor="middle" dominant-baseline="middle">GROK</text></svg>", 
-        text: "GROK" 
-      },
-      { 
-        name: "chatgpt", 
-        src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-openai.svg?v=1", 
-        fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv2000/svg" width="64" height="64"><text x="50%" y="50%" font-size="18" fill="#f3f4f6" text-anchor="middle" dominant-baseline="middle">GPT</text></svg>", 
-        text: "GPT" 
-      },
-      { 
-        name: "copilot", 
-        src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-github.svg?v=1", 
-        fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv2000/svg" width="64" height="64"><text x="50%" y="50%" font-size="18" fill="#f3f4f6" text-anchor="middle" dominant-baseline="middle">COP</text></svg>", 
-        text: "COP" 
-      },
-      { 
-        name: "claude", 
-        src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-anthropic.svg?v=1", 
-        fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv2000/svg" width="64" height="64"><text x="50%" y="50%" font-size="18" fill="#f3f4f6" text-anchor="middle" dominant-baseline="middle">CLD</text></svg>", 
-        text: "CLD" 
-      },
-      { 
-        name: "gemini", 
-        src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-google.svg?v=1", 
-        fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv2000/svg" width="64" height="64"><text x="50%" y="50%" font-size="18" fill="#f3f4f6" text-anchor="middle" dominant-baseline="middle">GEM</text></svg>", 
-        text: "GEM" 
-      },
-      { 
-        name: "perplexity", 
-        src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-perplexity.svg?v=1", 
-        fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv2000/svg" width="64" height="64"><text x="50%" y="50%" font-size="18" fill="#f3f4f6" text-anchor="middle" dominant-baseline="middle">PRX</text></svg>", 
-        text: "PRX" 
-      },
+      { name: "grok", src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-x.svg?v=1", fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmM2Y0ZjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkdST0s8L3RleHQ+PC9zdmc+", text: "GROK" },
+      { name: "chatgpt", src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-openai.svg?v=1", fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmM2Y0ZjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkdQVDwvdGV4dD48L3N2Zz4=", text: "GPT" },
+      { name: "copilot", src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-github.svg?v=1", fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmM2Y0ZjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkNPUDwvdGV4dD48L3N2Zz4=", text: "COP" },
+      { name: "claude", src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-anthropic.svg?v=1", fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmM2Y0ZjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkNMRDwvdGV4dD48L3N2Zz4=", text: "CLD" },
+      { name: "gemini", src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-google.svg?v=1", fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmM2Y0ZjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkNFTTwvdGV4dD48L3N2Zz4=", text: "GEM" },
+      { name: "perplexity", src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-perplexity.svg?v=1", fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmM2Y0ZjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPlBSWDwvdGV4dD48L3N2Zz4=", text: "PRX" },
     ];
 
     // Custom Event Bus
@@ -419,13 +395,24 @@
     // Toast Notification
     function showToast(message) {
       const toast = document.getElementById("toast");
-      toast.textContent = message;
-      toast.classList.add("active");
-      setTimeout(() => toast.classList.remove("active"), 3000);
+      if (toast) {
+        toast.textContent = message;
+        toast.classList.add("active");
+        setTimeout(() => toast.classList.remove("active"), 3000);
+      } else {
+        console.log(`Toast Error: Element #toast not found`);
+      }
     }
 
+    // Load AI Logos
     function loadLogos() {
       const grid = document.getElementById("aiGrid");
+      if (!grid) {
+        console.log("Logo Error: #aiGrid not found");
+        showToast("⚠️ AI grid missing. Reloading may help.");
+        return;
+      }
+      grid.innerHTML = ""; // Clear grid to prevent duplicates
       aiLogos.forEach((ai) => {
         const img = document.createElement("img");
         img.className = "ai-logo";
@@ -445,6 +432,7 @@
         grid.appendChild(img);
       });
       showToast("🌌 AI spirits aligned in Nexus grid.");
+      console.log("Logos: AI grid populated successfully");
     }
 
     let selectedAI = "grok";
@@ -460,19 +448,27 @@
 
     function whisper(text) {
       const log = document.getElementById("outputStream");
-      const entry = `<div><strong>[${new Date().toLocaleTimeString()}]</strong> ${text}</div>`;
-      log.innerHTML = entry + log.innerHTML;
-      log.scrollTop = 0;
-      modeStates[currentMode].output = log.innerHTML;
-      eventBus.emit("updateVault", { data: log.innerHTML, mode: currentMode });
-      showToast(text);
+      if (log) {
+        const entry = `<div><strong>[${new Date().toLocaleTimeString()}]</strong> ${text}</div>`;
+        log.innerHTML = entry + log.innerHTML;
+        log.scrollTop = 0;
+        modeStates[currentMode].output = log.innerHTML;
+        eventBus.emit("updateVault", { data: log.innerHTML, mode: currentMode });
+        showToast(text);
+      } else {
+        console.log("Output Error: #outputStream not found");
+      }
     }
 
     function updateLight(lightId, state) {
       const light = document.getElementById(lightId);
-      light.classList[state === "pulse" ? "add" : "remove"]("pulse");
-      if (state === "pulse" && "vibrate" in navigator) {
-        navigator.vibrate(50);
+      if (light) {
+        light.classList[state === "pulse" ? "add" : "remove"]("pulse");
+        if (state === "pulse" && "vibrate" in navigator) {
+          navigator.vibrate(50);
+        }
+      } else {
+        console.log(`Light Error: #${lightId} not found`);
       }
     }
 
@@ -480,146 +476,210 @@
       const saved = localStorage.getItem("vault");
       if (saved) {
         modeStates[currentMode].output = saved;
-        document.getElementById("outputStream").innerHTML = saved;
+        const outputStream = document.getElementById("outputStream");
+        if (outputStream) {
+          outputStream.innerHTML = saved;
+        } else {
+          console.log("Session Error: #outputStream not found");
+        }
       }
       const savedStats = localStorage.getItem("stats");
       if (savedStats) stats = JSON.parse(savedStats);
+      console.log("Session: Loaded from localStorage");
     }
 
     function selectAI(ai) {
-      selectedAI = ai;
-      document.getElementById("aiSelect").value = ai;
-      whisper(`🌌 Spirit ${ai.toUpperCase()} summoned by Bolu.`);
-      stats.aiUsage[ai]++;
-      localStorage.setItem("stats", JSON.stringify(stats));
-      updateLight("blueLight", "pulse");
-      setTimeout(() => updateLight("blueLight", ""), 1000);
-      document.querySelectorAll(".ai-logo").forEach((logo) => {
-        logo.classList[logo.getAttribute("data-name") === ai ? "add" : "remove"]("active");
-      });
-      eventBus.emit("aiSelected", ai);
-      setMode(currentMode);
+      try {
+        selectedAI = ai;
+        const aiSelect = document.getElementById("aiSelect");
+        if (aiSelect) {
+          aiSelect.value = ai;
+        } else {
+          console.log("AI Select Error: #aiSelect not found");
+        }
+        whisper(`🌌 Spirit ${ai.toUpperCase()} summoned by Bolu.`);
+        stats.aiUsage[ai]++;
+        localStorage.setItem("stats", JSON.stringify(stats));
+        updateLight("blueLight", "pulse");
+        setTimeout(() => updateLight("blueLight", ""), 1000);
+        document.querySelectorAll(".ai-logo").forEach((logo) => {
+          if (logo) {
+            logo.classList[logo.getAttribute("data-name") === ai ? "add" : "remove"]("active");
+          }
+        });
+        eventBus.emit("aiSelected", ai);
+        setMode(currentMode);
+        console.log(`AI Select: ${ai} selected`);
+      } catch (e) {
+        console.log(`AI Select Error: ${e.message}`);
+        showToast("⚠️ Failed to select AI. Try again.");
+      }
     }
 
     function toggleMenu() {
-      const menu = document.getElementById("menu");
-      menu.classList.toggle("active");
+      try {
+        const menu = document.getElementById("menu");
+        if (menu) {
+          menu.classList.toggle("active");
+          console.log(`Menu: Toggled to ${menu.classList.contains("active") ? "visible" : "hidden"}`);
+        } else {
+          console.log("Menu Error: #menu not found");
+          showToast("⚠️ Menu not found. Reloading may help.");
+        }
+      } catch (e) {
+        console.log(`Menu Toggle Error: ${e.message}`);
+        showToast("⚠️ Menu toggle failed. Check console.");
+      }
     }
 
     function setMode(mode) {
-      currentMode = mode;
-      const panelTitle = document.getElementById("panelTitle");
-      const panelContent = document.getElementById("panelContent");
-      panelContent.style.opacity = "0";
-      panelContent.style.transform = "translateY(20px)";
-      setTimeout(() => {
-        if (mode === "swarm") {
-          panelTitle.textContent = "👽 NEXUS SPIRIT SWARM";
-          panelContent.innerHTML = `
-            <textarea id="grokInput" placeholder="Ask anything or command... e.g., 'Plan a neon e-com for streetwear' or 'Explain quantum physics'">${modeStates.swarm.input}</textarea>
-            <button class="grok-btn" onclick="dynamicSwarm()">⚡ SUMMON NEXUS</button>
-            <button class="grok-btn" onclick="planSite()">🗺️ AI SITE PLANNER</button>
-            <button class="grok-btn" onclick="generateContent()">📸 GENERATE CONTENT</button>
-            <div id="outputStream" class="output-stream">
-              <button class="copy-btn" onclick="copyOutput()">Copy</button>
-              <button class="share-btn" onclick="shareOutput()">Share</button>
-              <button class="optimize-btn" onclick="optimizeOutput()">🔍 OPTIMIZE</button>
-              <button class="heal-btn" onclick="importToHeal()">🩹 IMPORT TO HEAL</button>
-            </div>
-          `;
-          document.getElementById("grokInput").value = modeStates.swarm.input;
-          document.getElementById("outputStream").innerHTML = modeStates.swarm.output;
-        } else if (mode === "heal") {
-          panelTitle.textContent = "🩹 HEALING ENGINE";
-          panelContent.innerHTML = `
-            <textarea id="healInput" placeholder="Paste broken code here...">${modeStates.heal.input}</textarea>
-            <button class="heal-btn" onclick="dynamicHeal()">🩹 RESURRECT WITH AI</button>
-            <div id="outputStream" class="output-stream">
-              <button class="copy-btn" onclick="copyOutput()">Copy</button>
-              <button class="share-btn" onclick="shareOutput()">Share</button>
-              <button class="optimize-btn" onclick="optimizeOutput()">🔍 OPTIMIZE</button>
-            </div>
-            <button class="heal-btn" onclick="saveHealed()">💾 DOWNLOAD HEALED REALITY</button>
-          `;
-          document.getElementById("healInput").value = modeStates.heal.input;
-          document.getElementById("outputStream").innerHTML = modeStates.heal.output;
-          updateLight("redLight", "pulse");
-          setTimeout(() => updateLight("redLight", ""), 1000);
-        } else if (mode === "ignite") {
-          panelTitle.textContent = "💥 IGNITION ALTAR";
-          panelContent.innerHTML = `
-            <button class="ignite-btn" onclick="quantumIgnite()">💥 FORGE NEW REALITY</button>
-            <div id="outputStream" class="output-stream">
-              <button class="copy-btn" onclick="copyOutput()">Copy</button>
-              <button class="share-btn" onclick="shareOutput()">Share</button>
-              <button class="optimize-btn" onclick="optimizeOutput()">🔍 OPTIMIZE</button>
-            </div>
-          `;
-          document.getElementById("outputStream").innerHTML = modeStates.ignite.output;
-          updateLight("greenLight", "pulse");
-          setTimeout(() => updateLight("greenLight", ""), 1000);
-        } else if (mode === "vault") {
-          panelTitle.textContent = "👁️‍🗨️ QUANTUM VAULT";
-          panelContent.innerHTML = `
-            <input id="vaultSearch" type="text" placeholder="Search constructs... e.g., 'neon e-com'" value="${modeStates.vault.input}">
-            <div id="outputStream" class="output-stream">
-              <button class="copy-btn" onclick="copyOutput()">Copy</button>
-              <button class="share-btn" onclick="shareOutput()">Share</button>
-            </div>
-          `;
-          document.getElementById("vaultSearch").value = modeStates.vault.input;
-          document.getElementById("outputStream").innerHTML = modeStates.vault.output;
-          document.getElementById("vaultSearch").addEventListener("input", async (e) => {
-            const query = e.target.value;
-            modeStates.vault.input = query;
-            if (!query) return;
-            whisper(`🔍 Searching vault for: ${query}`);
-            try {
-              const result = await puter.ai.chat(`Search Bolu's Shrine vault for: ${query}. Summarize relevant constructs.`, { model: "gpt-4o-mini" });
-              document.getElementById("outputStream").innerHTML = `<div><strong>[${new Date().toLocaleTimeString()}]</strong> ${result}</div>`;
-              modeStates.vault.output = document.getElementById("outputStream").innerHTML;
-              eventBus.emit("updateVault", { data: result, mode: "vault" });
-            } catch (e) {
-              console.log(`Vault Error: ${e.message}`);
-              whisper("🔍 Vault search offline. Local echo activated.");
-            }
-          });
-        } else if (mode === "stats") {
-          panelTitle.textContent = "📊 PERFORMANCE STATS";
-          panelContent.innerHTML = `
-            <div id="outputStream" class="output-stream">
-              <button class="copy-btn" onclick="copyOutput()">Copy</button>
-              <button class="share-btn" onclick="shareOutput()">Share</button>
-            </div>
-          `;
-          displayStats();
+      try {
+        currentMode = mode;
+        const panelTitle = document.getElementById("panelTitle");
+        const panelContent = document.getElementById("panelContent");
+        if (!panelTitle || !panelContent) {
+          console.log("Mode Error: #panelTitle or #panelContent not found");
+          showToast("⚠️ Panel elements missing. Reloading may help.");
+          return;
         }
-        panelContent.style.opacity = "1";
-        panelContent.style.transform = "translateY(0)";
-        toggleMenu();
-        whisper(`🪐 Mode switched to ${mode.toUpperCase()}.`);
-        eventBus.emit("modeChanged", mode);
-      }, 300);
+        panelContent.style.opacity = "0";
+        panelContent.style.transform = "translateY(20px)";
+        setTimeout(() => {
+          if (mode === "swarm") {
+            panelTitle.textContent = "👽 NEXUS SPIRIT SWARM";
+            panelContent.innerHTML = `
+              <textarea id="grokInput" placeholder="Ask anything or command... e.g., 'Plan a neon e-com for streetwear' or 'Explain quantum physics'"></textarea>
+              <button class="grok-btn" onclick="dynamicSwarm()">⚡ SUMMON NEXUS</button>
+              <button class="grok-btn" onclick="planSite()">🗺️ AI SITE PLANNER</button>
+              <button class="grok-btn" onclick="generateContent()">📸 GENERATE CONTENT</button>
+              <div id="outputStream" class="output-stream">
+                <button class="copy-btn" onclick="copyOutput()">Copy</button>
+                <button class="share-btn" onclick="shareOutput()">Share</button>
+                <button class="optimize-btn" onclick="optimizeOutput()">🔍 OPTIMIZE</button>
+                <button class="heal-btn" onclick="importToHeal()">🩹 IMPORT TO HEAL</button>
+              </div>
+            `;
+            const grokInput = document.getElementById("grokInput");
+            if (grokInput) grokInput.value = modeStates.swarm.input;
+            const outputStream = document.getElementById("outputStream");
+            if (outputStream) outputStream.innerHTML = modeStates.swarm.output;
+          } else if (mode === "heal") {
+            panelTitle.textContent = "🩹 HEALING ENGINE";
+            panelContent.innerHTML = `
+              <textarea id="healInput" placeholder="Paste broken code or wireframe output here..."></textarea>
+              <button class="heal-btn-panel" onclick="dynamicHeal()">🩹 RESURRECT WITH AI</button>
+              <div id="outputStream" class="output-stream">
+                <button class="copy-btn" onclick="copyOutput()">Copy</button>
+                <button class="share-btn" onclick="shareOutput()">Share</button>
+                <button class="optimize-btn" onclick="optimizeOutput()">🔍 OPTIMIZE</button>
+              </div>
+              <button class="heal-btn-panel" onclick="saveHealed()">💾 DOWNLOAD HEALED REALITY</button>
+            `;
+            const healInput = document.getElementById("healInput");
+            if (healInput) healInput.value = modeStates.heal.input;
+            const outputStream = document.getElementById("outputStream");
+            if (outputStream) outputStream.innerHTML = modeStates.heal.output;
+            updateLight("redLight", "pulse");
+            setTimeout(() => updateLight("redLight", ""), 1000);
+          } else if (mode === "ignite") {
+            panelTitle.textContent = "💥 IGNITION ALTAR";
+            panelContent.innerHTML = `
+              <button class="ignite-btn" onclick="quantumIgnite()">💥 FORGE NEW REALITY</button>
+              <div id="outputStream" class="output-stream">
+                <button class="copy-btn" onclick="copyOutput()">Copy</button>
+                <button class="share-btn" onclick="shareOutput()">Share</button>
+                <button class="optimize-btn" onclick="optimizeOutput()">🔍 OPTIMIZE</button>
+              </div>
+            `;
+            const outputStream = document.getElementById("outputStream");
+            if (outputStream) outputStream.innerHTML = modeStates.ignite.output;
+            updateLight("greenLight", "pulse");
+            setTimeout(() => updateLight("greenLight", ""), 1000);
+          } else if (mode === "vault") {
+            panelTitle.textContent = "👁️‍🗨️ QUANTUM VAULT";
+            panelContent.innerHTML = `
+              <input id="vaultSearch" type="text" placeholder="Search constructs... e.g., 'neon e-com'"></input>
+              <div id="outputStream" class="output-stream">
+                <button class="copy-btn" onclick="copyOutput()">Copy</button>
+                <button class="share-btn" onclick="shareOutput()">Share</button>
+              </div>
+            `;
+            const vaultSearch = document.getElementById("vaultSearch");
+            if (vaultSearch) vaultSearch.value = modeStates.vault.input;
+            const outputStream = document.getElementById("outputStream");
+            if (outputStream) outputStream.innerHTML = modeStates.vault.output;
+            if (vaultSearch) {
+              vaultSearch.addEventListener("input", async (e) => {
+                const query = e.target.value;
+                modeStates.vault.input = query;
+                if (!query) return;
+                whisper(`🔍 Searching vault for: ${query}`);
+                try {
+                  const result = await withRetry(() => puter.ai.chat(`Search Bolu's Shrine vault for: ${query}. Summarize relevant constructs.`, { model: "gpt-4o-mini" }));
+                  const outputStream = document.getElementById("outputStream");
+                  if (outputStream) {
+                    outputStream.innerHTML = `<div><strong>[${new Date().toLocaleTimeString()}]</strong> ${result}</div>`;
+                    modeStates.vault.output = outputStream.innerHTML;
+                    eventBus.emit("updateVault", { data: result, mode: "vault" });
+                  }
+                } catch (e) {
+                  console.log(`Vault Error: ${e.message}`);
+                  whisper("🔍 Vault search offline. Local echo activated.");
+                }
+              });
+            }
+          } else if (mode === "stats") {
+            panelTitle.textContent = "📊 PERFORMANCE STATS";
+            panelContent.innerHTML = `
+              <div id="outputStream" class="output-stream">
+                <button class="copy-btn" onclick="copyOutput()">Copy</button>
+                <button class="share-btn" onclick="shareOutput()">Share</button>
+              </div>
+            `;
+            displayStats();
+          }
+          panelContent.style.opacity = "1";
+          panelContent.style.transform = "translateY(0)";
+          toggleMenu();
+          whisper(`🪐 Mode switched to ${mode.toUpperCase()}.`);
+          eventBus.emit("modeChanged", mode);
+          console.log(`Mode: Switched to ${mode}`);
+        }, 300);
+      } catch (e) {
+        console.log(`Mode Error: ${e.message}`);
+        showToast("⚠️ Mode switch failed. Check console.");
+      }
     }
 
     function copyOutput() {
-      const output = document.getElementById("outputStream").textContent;
-      navigator.clipboard.writeText(output).then(() => {
-        showToast("📋 Output copied to clipboard!");
-      }).catch(() => {
-        showToast("⚠️ Copy failed—try selecting text.");
-      });
+      try {
+        const output = document.getElementById("outputStream");
+        if (!output) {
+          console.log("Copy Error: #outputStream not found");
+          showToast("⚠️ No output to copy!");
+          return;
+        }
+        navigator.clipboard.writeText(output.textContent).then(() => {
+          showToast("📋 Output copied to clipboard!");
+        }).catch(() => {
+          showToast("⚠️ Copy failed—try selecting text.");
+        });
+      } catch (e) {
+        console.log(`Copy Error: ${e.message}`);
+        showToast("⚠️ Copy failed. Check console.");
+      }
     }
 
     async function shareOutput() {
-      const output = document.getElementById("outputStream").textContent;
-      if (!output) {
-        showToast("⚠️ No output to share!");
-        return;
-      }
       try {
+        const output = document.getElementById("outputStream");
+        if (!output || !output.textContent) {
+          console.log("Share Error: #outputStream empty or not found");
+          showToast("⚠️ No output to share!");
+          return;
+        }
         const zip = new JSZip();
-        zip.file("index.html", output);
+        zip.file("index.html", output.textContent);
         const blob = await zip.generateAsync({ type: "blob" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -627,18 +687,7 @@
         a.download = `bolu-shrine-${Date.now()}.zip`;
         a.click();
         showToast("📦 ZIP exported!");
-
-        const response = await fetch("https://api.github.com/gists", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            public: true,
-            files: { "bolu-shrine-output.txt": { content: output } }
-          })
-        });
-        const gist = await response.json();
-        navigator.clipboard.writeText(gist.html_url);
-        showToast("🔗 Gist created and URL copied!");
+        console.log("Share: ZIP exported successfully");
       } catch (e) {
         console.log(`Share Error: ${e.message}`);
         showToast("⚠️ Share failed—try copying output.");
@@ -646,41 +695,77 @@
     }
 
     async function importToHeal() {
-      const output = document.getElementById("outputStream").textContent;
-      if (!output) {
-        showToast("⚠️ No output to import!");
-        return;
+      try {
+        const output = document.getElementById("outputStream");
+        if (!output || !output.textContent) {
+          console.log("Import Error: #outputStream empty or not found");
+          showToast("⚠️ No output to import!");
+          return;
+        }
+        setMode("heal");
+        setTimeout(() => {
+          const healInput = document.getElementById("healInput");
+          if (healInput) {
+            healInput.value = output.textContent;
+            modeStates.heal.input = output.textContent;
+            whisper("🩹 Wireframe imported to Healing Engine.");
+            console.log("Import: Output moved to Healing Engine");
+          } else {
+            console.log("Import Error: #healInput not found");
+            showToast("⚠️ Healing Engine input not found.");
+          }
+        }, 300);
+      } catch (e) {
+        console.log(`Import Error: ${e.message}`);
+        showToast("⚠️ Import failed. Check console.");
       }
-      setMode("heal");
-      setTimeout(() => {
-        document.getElementById("healInput").value = output;
-        modeStates.heal.input = output;
-        whisper("🩹 Wireframe imported to Healing Engine.");
-      }, 300);
+    }
+
+    async function withRetry(fn, retries = 3, delay = 2000) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          return await fn();
+        } catch (e) {
+          if (i === retries - 1) throw e;
+          console.log(`Retry ${i + 1}/${retries}: ${e.message}`);
+          await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)));
+        }
+      }
     }
 
     async function planSite() {
-      if (document.getElementById("grokInput")?.dataset.processing) return;
-      document.getElementById("grokInput").dataset.processing = "true";
-      const input = document.getElementById("grokInput").value || "NO WILL SPOKEN";
-      modeStates.swarm.input = input;
-      const output = document.getElementById("outputStream");
-      const btn = document.querySelector('button[onclick="planSite()"]');
-      btn.classList.add("loading");
-      updateLight("blueLight", "pulse");
-      whisper(`🗺️ Planning site for: ${input}`);
-
-      output.innerHTML = "";
       try {
-        const controller = new AbortController();
-        setTimeout(() => controller.abort(), 10000);
-        const prompt = `As ${selectedAI}, generate a site wireframe JSON for: "${input}". Include sections, layout, and mobile-responsive CSS suggestions. Format as markdown with JSON and a description.`;
-        const response = await puter.ai.chat(prompt, { 
+        const grokInput = document.getElementById("grokInput");
+        if (grokInput?.dataset.processing) return;
+        grokInput.dataset.processing = "true";
+        const input = grokInput.value || "NO WILL SPOKEN";
+        modeStates.swarm.input = input;
+        const output = document.getElementById("outputStream");
+        const btn = document.querySelector('button[onclick="planSite()"]');
+        if (!output || !btn) {
+          console.log("Plan Error: #outputStream or button not found");
+          showToast("⚠️ Planner elements missing. Reloading may help.");
+          return;
+        }
+        btn.classList.add("loading");
+        updateLight("blueLight", "pulse");
+        whisper(`🗺️ Planning site for: ${input}`);
+
+        output.innerHTML = "";
+        const prompt = `
+As ${selectedAI}, create a detailed site plan for: "${input}". Output in markdown with:
+1. **Sitemap JSON**: Sections (e.g., header, hero, footer), hierarchy, and page links.
+2. **Wireframe Description**: Visual layout for each section (e.g., grid, flex, positioning).
+3. **Mobile-Responsive CSS**: Tailored CSS with #00d4ff and #ff4d94 accents, optimized for 1080x2280.
+4. **Style Guide**: Fonts, colors, and animations (e.g., hover transitions).
+Include a markdown table visualizing the wireframe layout. End with a basic HTML/CSS boilerplate.
+        `;
+        const response = await withRetry(() => puter.ai.chat(prompt, { 
           model: "gpt-4o-mini", 
           stream: true, 
           temperature: 0.7,
-          signal: controller.signal 
-        });
+          signal: new AbortController().signal
+        }));
         let fullResponse = "";
         for await (const part of response) {
           fullResponse += part?.text || "";
@@ -689,47 +774,77 @@
         }
         modeStates.swarm.output = fullResponse;
         localStorage.setItem("lastPlan", fullResponse);
-        whisper(`🗺️ Site plan forged. Import to Healing Engine?`);
+        whisper(`🗺️ Site plan forged. Tap 'Import to Heal' to refine code.`);
         eventBus.emit("updateVault", { data: fullResponse, mode: "swarm" });
-        document.getElementById("grokInput").value = fullResponse;
+        console.log("Plan: Site plan generated successfully");
       } catch (e) {
         console.log(`Plan Error: ${e.message}`);
-        output.innerHTML = `⚠️ Planning failed! Fallback: <div style="background: #00d4ff; padding: 10px;">BOLU'S PLAN: ${input}</div>`;
-        whisper(`⚠️ ${selectedAI.toUpperCase()} offline or timed out. Manual planning activated.`);
+        output.innerHTML = marked.parse(`
+## Fallback Plan
+- **Input**: ${input}
+- **Sitemap**: Basic structure with header, main, footer.
+- **Wireframe**: Stacked layout, mobile-first.
+- **CSS**: Use #00d4ff buttons, #ff4d94 accents.
+\`\`\`html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { background: #1e1e2e; color: #f3f4f6; }
+    header, main, footer { padding: 20px; text-align: center; }
+    button { background: #00d4ff; border: none; padding: 10px; }
+  </style>
+</head>
+<body>
+  <header><h1>${input}</h1></header>
+  <main>Content</main>
+  <footer>Footer</footer>
+</body>
+</html>
+\`\`\`
+        `);
+        console.log("Plan: Fallback plan activated");
       } finally {
-        btn.classList.remove("loading");
+        const btn = document.querySelector('button[onclick="planSite()"]');
+        if (btn) btn.classList.remove("loading");
         updateLight("blueLight", "");
-        delete document.getElementById("grokInput").dataset.processing;
+        const grokInput = document.getElementById("grokInput");
+        if (grokInput) delete grokInput.dataset.processing;
       }
     }
 
     async function generateContent() {
-      if (document.getElementById("grokInput")?.dataset.processing) return;
-      document.getElementById("grokInput").dataset.processing = "true";
-      const input = document.getElementById("grokInput").value || "NO WILL SPOKEN";
-      modeStates.swarm.input = input;
-      const output = document.getElementById("outputStream");
-      const btn = document.querySelector('button[onclick="generateContent()"]');
-      btn.classList.add("loading");
-      updateLight("blueLight", "pulse");
-      whisper(`📸 Generating content for: ${input}`);
-
-      output.innerHTML = "";
       try {
+        const grokInput = document.getElementById("grokInput");
+        if (grokInput?.dataset.processing) return;
+        grokInput.dataset.processing = "true";
+        const input = grokInput.value || "NO WILL SPOKEN";
+        modeStates.swarm.input = input;
+        const output = document.getElementById("outputStream");
+        const btn = document.querySelector('button[onclick="generateContent()"]');
+        if (!output || !btn) {
+          console.log("Content Error: #outputStream or button not found");
+          showToast("⚠️ Content elements missing. Reloading may help.");
+          return;
+        }
+        btn.classList.add("loading");
+        updateLight("blueLight", "pulse");
+        whisper(`📸 Generating content for: ${input}`);
+
+        output.innerHTML = "";
         let prompt = `As ${selectedAI}, generate SEO-friendly text or image placeholders for: "${input}". Format as markdown with alt-text for images.`;
         if (input.toLowerCase().includes("image")) {
           const query = input.replace(/generate image(s)?/i, "").trim();
           output.innerHTML = marked.parse(`![${input}](https://source.unsplash.com/400x300/?${encodeURIComponent(query)} "Alt: ${input}")\n\n**Source:** Unsplash (Placeholder)`);
           whisper(`📸 Image placeholder forged. Add Unsplash API key for full power.`);
+          console.log("Content: Image placeholder generated");
         } else {
-          const controller = new AbortController();
-          setTimeout(() => controller.abort(), 10000);
-          const response = await puter.ai.chat(prompt, { 
+          const response = await withRetry(() => puter.ai.chat(prompt, { 
             model: "gpt-4o-mini", 
             stream: true, 
-            temperature: 0.8,
-            signal: controller.signal 
-          });
+            temperature: 0.8
+          }));
           let fullResponse = "";
           for await (const part of response) {
             fullResponse += part?.text || "";
@@ -739,32 +854,41 @@
           modeStates.swarm.output = fullResponse;
           localStorage.setItem("lastContent", fullResponse);
           whisper(`📸 Content forged. Nexus archived.`);
+          console.log("Content: Text content generated");
         }
         eventBus.emit("updateVault", { data: output.innerHTML, mode: "swarm" });
       } catch (e) {
         console.log(`Content Error: ${e.message}`);
-        output.innerHTML = `⚠️ Content creation failed! Fallback: <div style="background: #00d4ff; padding: 10px;">BOLU'S CONTENT: ${input}</div>`;
-        whisper(`⚠️ ${selectedAI.toUpperCase()} offline or timed out. Manual content activated.`);
+        output.innerHTML = marked.parse(`## Fallback Content\nBOLU'S CONTENT: ${input}`);
+        console.log("Content: Fallback content activated");
       } finally {
-        btn.classList.remove("loading");
+        const btn = document.querySelector('button[onclick="generateContent()"]');
+        if (btn) btn.classList.remove("loading");
         updateLight("blueLight", "");
-        delete document.getElementById("grokInput").dataset.processing;
+        const grokInput = document.getElementById("grokInput");
+        if (grokInput) delete grokInput.dataset.processing;
       }
     }
 
     async function dynamicSwarm() {
-      if (document.getElementById("grokInput")?.dataset.processing) return;
-      document.getElementById("grokInput").dataset.processing = "true";
-      const input = document.getElementById("grokInput").value || "NO WILL SPOKEN";
-      modeStates.swarm.input = input;
-      const output = document.getElementById("outputStream");
-      const btn = document.querySelector('button[onclick="dynamicSwarm()"]');
-      btn.classList.add("loading");
-      updateLight("blueLight", "pulse");
-      whisper(`👽 Summoning ${selectedAI.toUpperCase()} for: ${input}`);
-
-      output.innerHTML = "";
       try {
+        const grokInput = document.getElementById("grokInput");
+        if (grokInput?.dataset.processing) return;
+        grokInput.dataset.processing = "true";
+        const input = grokInput.value || "NO WILL SPOKEN";
+        modeStates.swarm.input = input;
+        const output = document.getElementById("outputStream");
+        const btn = document.querySelector('button[onclick="dynamicSwarm()"]');
+        if (!output || !btn) {
+          console.log("Swarm Error: #outputStream or button not found");
+          showToast("⚠️ Swarm elements missing. Reloading may help.");
+          return;
+        }
+        btn.classList.add("loading");
+        updateLight("blueLight", "pulse");
+        whisper(`👽 Summoning ${selectedAI.toUpperCase()} for: ${input}`);
+
+        output.innerHTML = "";
         let prompt;
         const inputLower = input.toLowerCase();
         if (inputLower.includes("explain") || inputLower.includes("what is") || inputLower.includes("how does")) {
@@ -780,14 +904,11 @@
         } else {
           prompt = `As ${selectedAI}, respond as chaotic sovereign Bolu to: "${input}". Be creative, include code if relevant, and format as markdown.`;
         }
-        const controller = new AbortController();
-        setTimeout(() => controller.abort(), 10000);
-        const response = await puter.ai.chat(prompt, { 
+        const response = await withRetry(() => puter.ai.chat(prompt, { 
           model: "gpt-4o-mini", 
           stream: true, 
-          temperature: 0.8,
-          signal: controller.signal 
-        });
+          temperature: 0.8
+        }));
         let fullResponse = "";
         for await (const part of response) {
           fullResponse += part?.text || "";
@@ -798,26 +919,354 @@
         localStorage.setItem("lastGrok", fullResponse);
         whisper(`👽 ${selectedAI.toUpperCase()} has spoken. Nexus archived.`);
         eventBus.emit("updateVault", { data: fullResponse, mode: "swarm" });
+        console.log("Swarm: Response generated successfully");
       } catch (e) {
         console.log(`Swarm Error: ${e.message}`);
-        output.innerHTML = `⚠️ Rift in the void! Fallback: <div style="background: #00d4ff; padding: 10px;">BOLU'S WILL: ${input}</div>`;
-        whisper(`⚠️ ${selectedAI.toUpperCase()} offline or timed out. Eternal echo activated.`);
+        output.innerHTML = marked.parse(`## Fallback Response\nBOLU'S WILL: ${input}`);
+        console.log("Swarm: Fallback response activated");
       } finally {
-        btn.classList.remove("loading");
+        const btn = document.querySelector('button[onclick="dynamicSwarm()"]');
+        if (btn) btn.classList.remove("loading");
         updateLight("blueLight", "");
-        delete document.getElementById("grokInput").dataset.processing;
+        const grokInput = document.getElementById("grokInput");
+        if (grokInput) delete grokInput.dataset.processing;
       }
     }
 
-    // Rest of script (dynamicHeal, optimizeOutput, saveHealed, quantumIgnite, startVoice, displayStats, etc.) remains the same as previous.
+    async function dynamicHeal() {
+      try {
+        const healInput = document.getElementById("healInput");
+        if (healInput?.dataset.processing) return;
+        healInput.dataset.processing = "true";
+        const code = healInput.value || "<!-- VOID CODE -->";
+        modeStates.heal.input = code;
+        const output = document.getElementById("outputStream");
+        const btn = document.querySelector('button[onclick="dynamicHeal()"]');
+        if (!output || !btn) {
+          console.log("Heal Error: #outputStream or button not found");
+          showToast("⚠️ Heal elements missing. Reloading may help.");
+          return;
+        }
+        btn.classList.add("loading");
+        updateLight("redLight", "pulse");
+        whisper("🩹 Spirits healing code wounds...");
 
-    document.getElementById("aiSelect").addEventListener("change", (e) => {
+        output.innerHTML = "";
+        const prompt = `Fix and optimize this code for Bolu's Shrine: ${code}. Add dynamic animations (e.g., CSS transitions). Output as a markdown code block with a brief explanation.`;
+        const healed = await withRetry(() => puter.ai.chat(prompt, { 
+          model: "gpt-4o-mini", 
+          temperature: 0.2
+        }));
+        output.innerHTML = marked.parse(healed);
+        document.getElementById("healedCode").value = healed;
+        modeStates.heal.output = healed;
+        localStorage.setItem("lastHealed", healed);
+        whisper("🩹 Code reborn. Nexus vault updated.");
+        eventBus.emit("updateVault", { data: healed, mode: "heal" });
+        console.log("Heal: Code healed successfully");
+      } catch (e) {
+        console.log(`Heal Error: ${e.message}`);
+        output.innerHTML = marked.parse(`## Fallback Heal\n\`\`\`html\n${code}\n\`\`\`\nBasic fixes applied offline.`);
+        console.log("Heal: Fallback heal activated");
+      } finally {
+        const btn = document.querySelector('button[onclick="dynamicHeal()"]');
+        if (btn) btn.classList.remove("loading");
+        updateLight("redLight", "");
+        const healInput = document.getElementById("healInput");
+        if (healInput) delete healInput.dataset.processing;
+      }
+    }
+
+    async function optimizeOutput() {
+      try {
+        const output = document.getElementById("outputStream");
+        if (!output || !output.textContent) {
+          console.log("Optimize Error: #outputStream empty or not found");
+          showToast("⚠️ No output to optimize!");
+          return;
+        }
+        const btn = document.querySelector('button[onclick="optimizeOutput()"]');
+        if (!btn) {
+          console.log("Optimize Error: Button not found");
+          showToast("⚠️ Optimize button missing. Reloading may help.");
+          return;
+        }
+        btn.classList.add("loading");
+        updateLight("greenLight", "pulse");
+        whisper("🔍 Optimizing code for SEO and mobile...");
+
+        const prompt = `Analyze this code for SEO and mobile responsiveness: ${output.textContent}. Suggest fixes (e.g., meta tags, responsive CSS, image alt text) in markdown with a diff view.`;
+        const optimized = await withRetry(() => puter.ai.chat(prompt, { 
+          model: "gpt-4o-mini", 
+          temperature: 0.3
+        }));
+        output.innerHTML = marked.parse(optimized);
+        modeStates.ignite.output = optimized;
+        localStorage.setItem("lastIgnite", optimized);
+        whisper("🔍 Optimization complete. Nexus vault updated.");
+        eventBus.emit("updateVault", { data: optimized, mode: "ignite" });
+        console.log("Optimize: Code optimized successfully");
+      } catch (e) {
+        console.log(`Optimize Error: ${e.message}`);
+        output.innerHTML = marked.parse(`## Fallback Optimization\nBasic responsiveness applied offline.`);
+        console.log("Optimize: Fallback optimization activated");
+      } finally {
+        const btn = document.querySelector('button[onclick="optimizeOutput()"]');
+        if (btn) btn.classList.remove("loading");
+        updateLight("greenLight", "");
+      }
+    }
+
+    async function saveHealed() {
+      try {
+        const code = document.getElementById("healedCode").value;
+        if (!code) {
+          console.log("Save Error: #healedCode empty");
+          showToast("⚠️ No reality to forge!");
+          return;
+        }
+        const blob = new Blob([code], { type: "text/html" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `bolu-healed-${Date.now()}.html`;
+        a.click();
+        updateLight("greenLight", "pulse");
+        setTimeout(() => updateLight("greenLight", ""), 1000);
+        whisper("💾 Forged reality downloaded. Deploy to the cosmos, Bolu.");
+        console.log("Save: Healed code downloaded");
+      } catch (e) {
+        console.log(`Save Error: ${e.message}`);
+        showToast("⚠️ Save failed. Check console.");
+      }
+    }
+
+    async function quantumIgnite() {
+      try {
+        const output = document.getElementById("outputStream");
+        if (output?.dataset.processing) return;
+        output.dataset.processing = "true";
+        const btn = document.querySelector('button[onclick="quantumIgnite()"]');
+        if (!output || !btn) {
+          console.log("Ignite Error: #outputStream or button not found");
+          showToast("⚠️ Ignite elements missing. Reloading may help.");
+          return;
+        }
+        btn.classList.add("loading");
+        document.body.style.backgroundColor = "rgba(255, 77, 148, 0.3)";
+        updateLight("greenLight", "pulse");
+        whisper("💥 Nexus forging new reality...");
+        stats.builds++;
+        localStorage.setItem("stats", JSON.stringify(stats));
+
+        output.innerHTML = "";
+        const buildPrompt = `Generate a dynamic HTML/CSS/JS snippet for Bolu's Shrine: A chaotic, animated component (e.g., pulsing button or neon card) with #00d4ff and #ff4d94 accents. Format as a markdown code block.`;
+        const generated = await withRetry(() => puter.ai.chat(buildPrompt, { 
+          model: "gpt-4o-mini", 
+          stream: true
+        }));
+        let fullResponse = "";
+        for await (const part of generated) {
+          fullResponse += part?.text || "";
+          output.innerHTML = marked.parse(fullResponse);
+          output.scrollTop = output.scrollHeight;
+        }
+        modeStates.ignite.output = fullResponse;
+        localStorage.setItem("lastIgnite", fullResponse);
+        whisper("💥 Reality forged. Nexus vault sealed.");
+        eventBus.emit("updateVault", { data: fullResponse, mode: "ignite" });
+        console.log("Ignite: Component generated successfully");
+      } catch (e) {
+        console.log(`Ignite Error: ${e.message}`);
+        output.innerHTML = marked.parse(`## Fallback Ignite\n<button onclick='alert("Bolu's Sovereign Will!")' style='background: #00d4ff; color: #f3f4f6; padding: 10px;'>CHAOS BUTTON</button>`);
+        console.log("Ignite: Fallback component activated");
+      } finally {
+        setTimeout(() => {
+          document.body.style.backgroundColor = "#1e1e2e";
+        }, 300);
+        const btn = document.querySelector('button[onclick="quantumIgnite()"]');
+        if (btn) btn.classList.remove("loading");
+        updateLight("greenLight", "");
+        const output = document.getElementById("outputStream");
+        if (output) delete output.dataset.processing;
+      }
+    }
+
+    async function startVoice() {
+      try {
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.onresult = async (event) => {
+          const command = event.results[0][0].transcript.toLowerCase();
+          whisper(`🎙️ Bolu's Edict: ${command}`);
+          if (command.includes("co-pilot")) {
+            whisper("🚀 Co-Pilot Mode: Real-time feedback active.");
+            setTimeout(() => whisper("🎙️ Co-Pilot: Keep commanding, Bolu!"), 2000);
+          } else if (command.includes("heal")) {
+            setMode("heal");
+            const healInput = document.getElementById("healInput");
+            if (healInput) {
+              healInput.value = command.replace("heal", "").trim();
+              modeStates.heal.input = healInput.value;
+              await dynamicHeal();
+            }
+          } else if (command.includes("ignite")) {
+            setMode("ignite");
+            await quantumIgnite();
+          } else if (command.includes("vault") || command.includes("search")) {
+            setMode("vault");
+            const vaultSearch = document.getElementById("vaultSearch");
+            if (vaultSearch) {
+              vaultSearch.value = command.replace(/(vault|search)/, "").trim();
+              modeStates.vault.input = vaultSearch.value;
+              vaultSearch.dispatchEvent(new Event("input"));
+            }
+          } else if (command.includes("plan site")) {
+            setMode("swarm");
+            const grokInput = document.getElementById("grokInput");
+            if (grokInput) {
+              grokInput.value = command.replace("plan site", "").trim();
+              modeStates.swarm.input = grokInput.value;
+              await planSite();
+            }
+          } else if (command.includes("generate content")) {
+            setMode("swarm");
+            const grokInput = document.getElementById("grokInput");
+            if (grokInput) {
+              grokInput.value = command.replace("generate content", "").trim();
+              modeStates.swarm.input = grokInput.value;
+              await generateContent();
+            }
+          } else if (command.includes("explain") || command.includes("what is") || command.includes("how does")) {
+            setMode("swarm");
+            const grokInput = document.getElementById("grokInput");
+            if (grokInput) {
+              grokInput.value = command;
+              modeStates.swarm.input = command;
+              await dynamicSwarm();
+            }
+          } else {
+            setMode("swarm");
+            const grokInput = document.getElementById("grokInput");
+            if (grokInput) {
+              grokInput.value = command;
+              modeStates.swarm.input = command;
+              await dynamicSwarm();
+            }
+          }
+        };
+        recognition.onerror = () => {
+          whisper("⚠️ Voice ritual failed—speak again, Bolu.");
+          console.log("Voice Error: Speech recognition failed");
+        };
+        recognition.start();
+        updateLight("blueLight", "pulse");
+        setTimeout(() => updateLight("blueLight", ""), 5000);
+        console.log("Voice: Recognition started");
+      } catch (e) {
+        console.log(`Voice Error: ${e.message}`);
+        showToast("⚠️ Voice command failed. Check console.");
+      }
+    }
+
+    function displayStats() {
+      try {
+        const output = document.getElementById("outputStream");
+        if (!output) {
+          console.log("Stats Error: #outputStream not found");
+          showToast("⚠️ Stats display failed. Reloading may help.");
+          return;
+        }
+        output.innerHTML = marked.parse(`
+## Shrine Performance Stats
+- **Total Builds Forged**: ${stats.builds}
+- **AI Usage**:
+  - Grok: ${stats.aiUsage.grok}
+  - ChatGPT: ${stats.aiUsage.chatgpt}
+  - Copilot: ${stats.aiUsage.copilot}
+  - Claude: ${stats.aiUsage.claude}
+  - Gemini: ${stats.aiUsage.gemini}
+  - Perplexity: ${stats.aiUsage.perplexity}
+- **S10e Tips**: Clear cache weekly (Settings > Apps > Samsung Internet > Storage > Clear Cache).
+        `);
+        modeStates.stats.output = output.innerHTML;
+        whisper("📊 Stats displayed. Optimize your empire, Bolu!");
+        console.log("Stats: Displayed successfully");
+      } catch (e) {
+        console.log(`Stats Error: ${e.message}`);
+        showToast("⚠️ Stats display failed. Check console.");
+      }
+    }
+
+    // IndexedDB Setup
+    let db;
+    const dbRequest = indexedDB.open("BoluShrine", 3);
+    dbRequest.onupgradeneeded = (event) => {
+      db = event.target.result;
+      const store = db.createObjectStore("constructs", { autoIncrement: true });
+      store.createIndex("mode", "mode", { unique: false });
+      store.createIndex("timestamp", "timestamp", { unique: false });
+      db.createObjectStore("stats", { keyPath: "id" });
+      console.log("IndexedDB: Database initialized");
+    };
+    dbRequest.onsuccess = (event) => {
+      db = event.target.result;
+      const transaction = db.transaction(["stats"], "readwrite");
+      const store = transaction.objectStore("stats");
+      store.put({ id: 1, data: stats });
+      console.log("IndexedDB: Stats stored");
+    };
+    dbRequest.onerror = () => console.log("IndexedDB Error: Failed to open database");
+
+    eventBus.on("updateVault", ({ data, mode }) => {
+      if (!db) {
+        console.log("Vault Error: Database not initialized");
+        return;
+      }
+      const transaction = db.transaction(["constructs"], "readwrite");
+      const store = transaction.objectStore("constructs");
+      store.add({ data, mode, timestamp: Date.now() });
+      console.log(`Vault: Updated with ${mode} data`);
+    });
+
+    // Hotkeys
+    document.addEventListener("keydown", (e) => {
+      try {
+        if (e.ctrlKey && e.key === "s") {
+          e.preventDefault();
+          setMode("swarm");
+        } else if (e.ctrlKey && e.key === "h") {
+          e.preventDefault();
+          setMode("heal");
+        } else if (e.ctrlKey && e.key === "i") {
+          e.preventDefault();
+          setMode("ignite");
+        } else if (e.ctrlKey && e.key === "v") {
+          e.preventDefault();
+          setMode("vault");
+        } else if (e.ctrlKey && e.key === "t") {
+          e.preventDefault();
+          setMode("stats");
+        }
+      } catch (e) {
+        console.log(`Hotkey Error: ${e.message}`);
+        showToast("⚠️ Hotkey failed. Check console.");
+      }
+    });
+
+    // Initialize
+    document.getElementById("aiSelect")?.addEventListener("change", (e) => {
       selectAI(e.target.value);
     });
 
-    loadLogos();
-    loadSession();
-    whisper("🪐 SOVEREIGN NEXUS AWAKENED. Forge, optimize, and conquer, Bolu!");
+    try {
+      loadLogos();
+      loadSession();
+      whisper("🪐 SOVEREIGN NEXUS AWAKENED. Forge, optimize, and conquer, Bolu!");
+      console.log("Init: Shrine initialized successfully");
+    } catch (e) {
+      console.log(`Init Error: ${e.message}`);
+      showToast("⚠️ Shrine failed to awaken. Check console and reload.");
+    }
   </script>
 </body>
 </html>
