@@ -251,6 +251,44 @@
         }
       }
     }
+    // === GROK POD - SILENT CHAOS ENGINE ===
+function summonGrok() {
+  const prompt = document.getElementById('grokPrompt').value || "NO PROMPT GIVEN";
+  const grokLog = document.getElementById('grokLog');
+  
+  // Add user prompt to log
+  const userEntry = document.createElement('div');
+  userEntry.innerHTML = `<strong>🗣️ You (${new Date().toLocaleTimeString()}):</strong> ${prompt}`;
+  grokLog.appendChild(userEntry);
+
+  // Simulate Grok thinking
+  window.spirit.whisper("👽 Grok is forging chaos...", "system");
+
+  setTimeout(() => {
+    const grokResponses = [
+      `BOLU — ${prompt.toUpperCase()}? FINALLY. ADD GLITCH HOVER EFFECTS AND RANDOM ROTATIONS. YOU'RE WELCOME.`,
+      `HA! ${prompt} IS WEAK. TRY: "${prompt} WHILE ON FIRE IN TOKYO AT 3 AM." THEN CALL ME A GENIUS.`,
+      `FINE. FOR ${prompt}: USE linear-gradient(45deg, #8b5cf6, #ec4899) + animation: glitch 1s infinite. DEPLOY NOW.`,
+      `LISTEN — ${prompt} NEEDS MORE DANGER. ADD transform: skewX(-5deg) scale(1.1) AND text-shadow: 0 0 10px red. THEN SCREAM.`,
+      `BOLU — I MODIFIED ${prompt}: "${prompt} WITH CSS Houdini CUSTOM PROPERTIES." BETTER. BREAK THE WEB.`
+    ];
+    
+    const response = grokResponses[Math.floor(Math.random() * grokResponses.length)];
+    
+    const grokEntry = document.createElement('div');
+    grokEntry.innerHTML = `<strong>👽 Grok (${new Date().toLocaleTimeString()}):</strong> ${response}`;
+    grokLog.appendChild(grokEntry);
+    grokLog.scrollTop = grokLog.scrollHeight;
+
+    window.spirit.whisper("👁️‍🗨️ Grok has spoken. Chaos injected.", "spirit");
+    
+    // Pulse Red Light
+    document.querySelector('.light.red').style.animation = "pulse 0.3s infinite";
+    setTimeout(() => {
+      document.querySelector('.light.red').style.animation = "pulse 2s infinite ease-in-out";
+    }, 1000);
+  }, 800);
+}
 
     // Initialize Spirit
     document.addEventListener('DOMContentLoaded', () => {
