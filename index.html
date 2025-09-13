@@ -259,7 +259,7 @@
       margin: 10px 0;
       position: relative;
     }
-    .copy-btn, .share-btn, .optimize-btn {
+    .copy-btn, .share-btn, .optimize-btn, .heal-btn {
       position: absolute;
       top: 10px;
       right: 10px;
@@ -273,6 +273,7 @@
     }
     .share-btn { right: 70px; }
     .optimize-btn { right: 130px; }
+    .heal-btn { right: 190px; }
     .toast {
       position: fixed;
       bottom: 80px;
@@ -307,8 +308,8 @@
     .mic-btn:hover {
       transform: scale(1.1);
     }
-    .heal-btn { background: #ff4d94 !important; }
     .grok-btn { background: #00d4ff !important; }
+    .heal-btn-panel { background: #ff4d94 !important; }
     .ignite-btn { background: #ff6b6b !important; }
   </style>
 </head>
@@ -343,13 +344,14 @@
     <div class="panel active" id="mainPanel">
       <h2 id="panelTitle">👽 NEXUS SPIRIT SWARM</h2>
       <div id="panelContent">
-        <textarea id="grokInput" placeholder="Ask anything or command... e.g., 'Plan a neon e-com' or 'Explain quantum physics'"></textarea>
+        <textarea id="grokInput" placeholder="Ask anything or command... e.g., 'Plan a neon e-com for streetwear' or 'Explain quantum physics'"></textarea>
         <button class="grok-btn" onclick="dynamicSwarm()">⚡ SUMMON NEXUS</button>
         <button class="grok-btn" onclick="planSite()">🗺️ AI SITE PLANNER</button>
         <button class="grok-btn" onclick="generateContent()">📸 GENERATE CONTENT</button>
         <div id="outputStream" class="output-stream">
           <button class="copy-btn" onclick="copyOutput()">Copy</button>
           <button class="share-btn" onclick="shareOutput()">Share</button>
+          <button class="heal-btn" onclick="importToHeal()">🩹 IMPORT TO HEAL</button>
         </div>
       </div>
     </div>
@@ -388,13 +390,13 @@
       { 
         name: "gemini", 
         src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-google.svg?v=1", 
-        fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmM2Y0ZjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkNFTTwvdGV4dD48L3N2Zz4=", 
+        fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI6NCIgaGVpZ2h0PSI2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmM2Y0ZjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPkNFTTwvdGV4dD48L3N2Zz4=", 
         text: "GEM" 
       },
       { 
         name: "perplexity", 
         src: "https://cdn.jsdelivr.net/npm/@tabler/icons@2.47.0/icons/brand-perplexity.svg?v=1", 
-        fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmM2Y0ZjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPlBSWDwvdGV4dD48L3N2Zz4=", 
+        fallback: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI6NCIgaGVpZ2h0PSI2NCI+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmM2Y0ZjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPlBSWDwvdGV4dD48L3N2Zz4=", 
         text: "PRX" 
       },
     ];
@@ -513,13 +515,14 @@
         if (mode === "swarm") {
           panelTitle.textContent = "👽 NEXUS SPIRIT SWARM";
           panelContent.innerHTML = `
-            <textarea id="grokInput" placeholder="Ask anything or command... e.g., 'Plan a neon e-com' or 'Explain quantum physics'">${modeStates.swarm.input}</textarea>
+            <textarea id="grokInput" placeholder="Ask anything or command... e.g., 'Plan a neon e-com for streetwear' or 'Explain quantum physics'">${modeStates.swarm.input}</textarea>
             <button class="grok-btn" onclick="dynamicSwarm()">⚡ SUMMON NEXUS</button>
             <button class="grok-btn" onclick="planSite()">🗺️ AI SITE PLANNER</button>
             <button class="grok-btn" onclick="generateContent()">📸 GENERATE CONTENT</button>
             <div id="outputStream" class="output-stream">
               <button class="copy-btn" onclick="copyOutput()">Copy</button>
               <button class="share-btn" onclick="shareOutput()">Share</button>
+              <button class="heal-btn" onclick="importToHeal()">🩹 IMPORT TO HEAL</button>
             </div>
           `;
           document.getElementById("grokInput").value = modeStates.swarm.input;
@@ -527,13 +530,13 @@
         } else if (mode === "heal") {
           panelTitle.textContent = "🩹 HEALING ENGINE";
           panelContent.innerHTML = `
-            <textarea id="healInput" placeholder="Paste broken code here...">${modeStates.heal.input}</textarea>
-            <button class="heal-btn" onclick="dynamicHeal()">🩹 RESURRECT WITH AI</button>
+            <textarea id="healInput" placeholder="Paste broken code or wireframe output here...">${modeStates.heal.input}</textarea>
+            <button class="heal-btn-panel" onclick="dynamicHeal()">🩹 RESURRECT WITH AI</button>
             <div id="outputStream" class="output-stream">
               <button class="copy-btn" onclick="copyOutput()">Copy</button>
               <button class="share-btn" onclick="shareOutput()">Share</button>
             </div>
-            <button class="heal-btn" onclick="saveHealed()">💾 DOWNLOAD HEALED REALITY</button>
+            <button class="heal-btn-panel" onclick="saveHealed()">💾 DOWNLOAD HEALED REALITY</button>
           `;
           document.getElementById("healInput").value = modeStates.heal.input;
           document.getElementById("outputStream").innerHTML = modeStates.heal.output;
@@ -639,6 +642,20 @@
       }
     }
 
+    async function importToHeal() {
+      const output = document.getElementById("outputStream").textContent;
+      if (!output) {
+        showToast("⚠️ No output to import!");
+        return;
+      }
+      setMode("heal");
+      setTimeout(() => {
+        document.getElementById("healInput").value = output;
+        modeStates.heal.input = output;
+        whisper("🩹 Wireframe imported to Healing Engine.");
+      }, 300);
+    }
+
     async function planSite() {
       if (document.getElementById("grokInput")?.dataset.processing) return;
       document.getElementById("grokInput").dataset.processing = "true";
@@ -654,7 +671,14 @@
       try {
         const controller = new AbortController();
         setTimeout(() => controller.abort(), 10000);
-        const prompt = `As ${selectedAI}, generate a site wireframe JSON for: "${input}". Include sections, layout, and mobile-responsive CSS suggestions. Format as markdown with JSON and a description.`;
+        const prompt = `
+As ${selectedAI}, create a detailed site plan for: "${input}". Output in markdown with:
+1. **Sitemap JSON**: Sections (e.g., header, hero, footer), hierarchy, and page links.
+2. **Wireframe Description**: Visual layout for each section (e.g., grid, flex, positioning).
+3. **Mobile-Responsive CSS**: Tailored CSS with #00d4ff and #ff4d94 accents, optimized for 1080x2280.
+4. **Style Guide**: Fonts, colors, and animations (e.g., hover transitions).
+Include a markdown table visualizing the wireframe layout. End with a basic HTML/CSS boilerplate.
+        `;
         const response = await puter.ai.chat(prompt, { 
           model: "gpt-4o-mini", 
           stream: true, 
@@ -669,13 +693,36 @@
         }
         modeStates.swarm.output = fullResponse;
         localStorage.setItem("lastPlan", fullResponse);
-        whisper(`🗺️ Site plan forged. Import to Healing Engine?`);
+        whisper(`🗺️ Site plan forged. Tap 'Import to Heal' to refine code.`);
         eventBus.emit("updateVault", { data: fullResponse, mode: "swarm" });
-        document.getElementById("grokInput").value = fullResponse;
       } catch (e) {
         console.log(`Plan Error: ${e.message}`);
-        output.innerHTML = `⚠️ Planning failed! Fallback: <div style="background: #00d4ff; padding: 10px;">BOLU'S PLAN: ${input}</div>`;
-        whisper(`⚠️ ${selectedAI.toUpperCase()} offline or timed out. Manual planning activated.`);
+        output.innerHTML = marked.parse(`
+## Fallback Plan
+- **Input**: ${input}
+- **Sitemap**: Basic structure with header, main, footer.
+- **Wireframe**: Stacked layout, mobile-first.
+- **CSS**: Use #00d4ff buttons, #ff4d94 accents.
+\`\`\`html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { background: #1e1e2e; color: #f3f4f6; }
+    header, main, footer { padding: 20px; text-align: center; }
+    button { background: #00d4ff; border: none; padding: 10px; }
+  </style>
+</head>
+<body>
+  <header><h1>${input}</h1></header>
+  <main>Content</main>
+  <footer>Footer</footer>
+</body>
+</html>
+\`\`\`
+        `);
+        whisper(`⚠️ ${selectedAI.toUpperCase()} offline or timed out. Manual plan activated.`);
       } finally {
         btn.classList.remove("loading");
         updateLight("blueLight", "");
@@ -862,7 +909,7 @@
       }
     }
 
-    function saveHealed() {
+    async function saveHealed() {
       const code = document.getElementById("healedCode").value;
       if (!code) {
         showToast("⚠️ No reality to forge!");
